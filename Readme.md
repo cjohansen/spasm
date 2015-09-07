@@ -450,6 +450,7 @@ then trigger the action.
 
 ```js
 React.DOM.a({onClick: app.performAction(['gotoURL', '/'])}, 'Home');
+```
 
 ### `app.addPages(pages)`
 
