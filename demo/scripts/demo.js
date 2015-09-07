@@ -16,14 +16,8 @@ const app = createApp(document.getElementById('app'), {
   }
 });
 
-app.addAction('goto', (url) => {
-  history.pushState({}, '', url);
-  app.loadURL(url);
-});
-
-app.addAction('saveState', (state, data) => {
-  app.updateState(state);
-});
+app.addAction('gotoURL', app.gotoURL);
+app.addAction('updateState', app.updateState);
 
 const FlashMessage = React.createFactory(React.createClass({
   render() {
@@ -68,8 +62,8 @@ app.addPages({
         title: `Welcome to ${page}!`,
         text: pageData.text,
         actions: {
-          editPage: ['goto', editPageURL],
-          triggerFlash: ['saveState', {flash: {message: 'I am a flash'}}]
+          editPage: ['gotoURL', editPageURL],
+          triggerFlash: ['updateState', {flash: {message: 'I am a flash'}}]
         }
       };
     },

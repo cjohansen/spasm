@@ -193,14 +193,8 @@ Let's add an action to the application - a regular link that loads a different
 page. First, we will define the action itself:
 
 ```js
-app.addAction('goto', (url) => {
-  history.pushState({}, '', url);
-  app.loadURL(url);
-});
+app.addAction('gotoURL', (url) => app.gotoURL(url));
 ```
-
-Reapp does not automatically manage the URL for us, so the `goto` action updates
-the current URL and calls on the app to load the new URL.
 
 To trigger this action in the component, we should first expose it in
 `prepareData`:
@@ -214,7 +208,7 @@ prepareData({pageData, location: {params: {page}}}) {
     title: `Welcome to ${page}!`,
     text: pageData.text,
     actions: {
-      editPage: ['goto', editPageURL]
+      editPage: ['gotoURL', editPageURL]
     }
   };
 }
@@ -253,16 +247,6 @@ a({
 }, 'Edit page')
 ```
 
-Because Reapp does not automatically sync the URL (it only provides the tools to
-do so), you need to include this piece of code for the back button to work as
-expected:
-
-```js
-window.onpopstate = function () {
-  app.loadURL(location.href);
-};
-```
-
 For our final example, we will consider adding a "flash message" - a message
 pinned to the top of the page regardless of which URL you're currently watching.
 We will start by adding a new action. It will add some data to the client-side
@@ -273,10 +257,7 @@ import {assign} from 'lodash/object/assign';
 
 // ...
 
-app.addAction('saveState', (state, data) => {
-  assign(data.state, state);
-  app.render();
-});
+app.addAction('updateState', (state, data) => app.updateState(state));
 ```
 
 Next up, we will include an action for the UI so it can trigger the flash:
@@ -290,8 +271,8 @@ prepareData({pageData, location: {params: {page}}}) {
     title: `Welcome to ${page}!`,
     text: pageData.text,
     actions: {
-      editPage: ['goto', editPageURL],
-      triggerFlash: ['saveState', {flash: {message: 'I am a flash'}}]
+      editPage: ['gotoURL', editPageURL],
+      triggerFlash: ['updateState', {flash: {message: 'I am a flash'}}]
     }
   };
 }
@@ -393,6 +374,10 @@ function.
 Use the router to resolve the page for this URL, fetch its data, prepare it, and
 render.
 
+### `app.gotoURL(url)`
+
+Like `loadURL`, but also push the `url` to the browser.
+
 ### `app.triggerAction(action)`
 
 Triggers an action. If trying to trigger an action that has no handlers, this
@@ -464,7 +449,7 @@ that can be used as an event handler. The handler will call `preventDefault` and
 then trigger the action.
 
 ```js
-React.DOM.a({onClick: app.performAction(['goto', '/'])}, 'Home');
+React.DOM.a({onClick: app.performAction(['gotoURL', '/'])}, 'Home');
 
 ### `app.addPages(pages)`
 
@@ -475,3 +460,69 @@ page objects.
 ### `app.start()`
 
 Kick things off by rendering `location.href`.
+
+### Pages
+
+Pages are plain old JavaScript objects. Every page *must* implement the `render`
+function, which can be a single React component, e.g.: `{render:
+SomeComponent}`. Additionally, pages may implement `getData` and `prepareData`.
+
+#### `page.getData({state, location})`
+
+Fetch data for this page. May return data directly, or a promise that resolves
+with the data. The state contains whatever was previously put in it. `location`
+is described with the router below.
+
+#### `page.prepareData({pageData, state, location})`
+
+Perform any data processing necessary for rendering the UI and return the object
+to render. `pageData` is the data retrieved with `getData`.
+
+If the object returned from `prepareData` includes a `title`, it will be used
+for the page title (e.g. `document.title`).
+
+## The router
+
+The router is not exposed directly, although it is completely possible to use it
+on its own if desired.
+
+### `const routingTable = createRoutes(routes)`
+
+Creates a routing table. `routes` is an array of routes, where each route is a
+tuple of `[pageName, urlTemplate]`.
+
+### `const url = toURLString({path, query})`
+
+Produces a URL string from a path and a query parameter object.
+
+### `const url = getURL(routes, page, params)`
+
+Generates the URL to the given page type with the given parameters.
+
+### `const location = getPage(routes, url)`
+
+Returns the matching page from the routing table for the giving URL. If no route
+matches, it returns `null`. The location description includes the following
+properties:
+
+#### String `page`
+
+The name of the matching page.
+
+#### String `url`
+
+The URL matched against.
+
+#### String `path`
+
+Only the path part of the URL matched against.
+
+#### Object `params`
+
+Parameters matched from the route. Any `:paramName` placeholder from URL
+templates are included. For instance, if the matching route was `/stuff/:id`,
+then `params` will contain the `id` property.
+
+#### Object `query`
+
+The query string, parsed into an object.

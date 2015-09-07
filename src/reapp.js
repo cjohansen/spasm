@@ -13,8 +13,8 @@ function getData(page, currentData) {
   }
 }
 
-function prep(page, data, options) {
-  return page.prepareData ? page.prepareData(data, options) : data;
+function prep(page, data) {
+  return page.prepareData ? page.prepareData(data) : data;
 }
 
 export function createApp(el, {routes, state, finalizeData}) {
@@ -61,15 +61,20 @@ export function createApp(el, {routes, state, finalizeData}) {
     renderPage(currentPage);
   }
 
+  function getCurrentURL() {
+    return toURLString(currentData.location);
+  }
+
+  window.onpopstate = function () {
+    loadURL(location.href);
+  };
+
   return {
     loadURL,
     triggerAction,
     refresh,
+    getCurrentURL,
     getURL: getURL(routes),
-
-    getCurrentURL() {
-      return toURLString(currentData.location);
-    },
 
     addAction(event, handler) {
       bus.on(event, data => handler(data, currentData));
@@ -90,11 +95,17 @@ export function createApp(el, {routes, state, finalizeData}) {
       loadURL(location.href);
     },
 
+    gotoURL(url) {
+      history.pushState({}, '', url);
+      loadURL(url);
+    },
+
     updateQueryParams(params) {
       if (!currentPage) {
         throw new Error('Cannot update query params before a page is loaded');
       }
       assign(currentData.location.params, params);
+      history.pushState({}, '', getCurrentURL());
       refresh();
     },
 
