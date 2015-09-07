@@ -1,6 +1,7 @@
 /*global React*/
 import {createRoutes, getPage, getURL, toURLString} from './router';
 import {EventEmitter} from 'events';
+import assign from 'lodash/object/assign';
 import notFound from './not-found';
 
 function getData(page, currentData) {
@@ -18,7 +19,6 @@ function prep(page, data, options) {
 
 export function createApp(el, {routes, state, finalizeData}) {
   routes = createRoutes(routes);
-  const getRouterURL = getURL(routes);
   const bus = new EventEmitter();
   const pages = {};
   let currentData = {state: state || {}}, currentPage;
@@ -26,11 +26,11 @@ export function createApp(el, {routes, state, finalizeData}) {
 
   function render() {
     const data = finalizeData(
-      prep(currentPage, currentData, {getUrl: getRouterURL}),
+      prep(currentPage, currentData),
       currentData.location,
       currentData.state
     );
-    document.title = data.title;
+    document.title = data.title || '';
     React.render(currentPage.render(data), el);
   }
 
@@ -49,9 +49,23 @@ export function createApp(el, {routes, state, finalizeData}) {
     renderPage(pages[res.page] || pages[404] || {render: notFound});
   }
 
+  function triggerAction([action, ...args]) {
+    if (bus.listeners(action).length === 0) {
+      throw new Error(`Tried to trigger action ${action} (${args}),
+                      which has no handlers`);
+    }
+    bus.emit(action, ...args);
+  }
+
+  function refresh() {
+    renderPage(currentPage);
+  }
+
   return {
     loadURL,
-    render,
+    triggerAction,
+    refresh,
+    getURL: getURL(routes),
 
     getCurrentURL() {
       return toURLString(currentData.location);
@@ -61,14 +75,10 @@ export function createApp(el, {routes, state, finalizeData}) {
       bus.on(event, data => handler(data, currentData));
     },
 
-    performAction([action, ...args]) {
+    performAction(action) {
       return function (e) {
         e.preventDefault();
-        if (bus.listeners(action).length === 0) {
-          throw new Error(`Tried to trigger action ${action} (${args}),
-                          which has no handlers`);
-        }
-        bus.emit(action, ...args);
+        triggerAction(action);
       };
     },
 
@@ -80,8 +90,19 @@ export function createApp(el, {routes, state, finalizeData}) {
       loadURL(location.href);
     },
 
-    refresh() {
-      renderPage(currentPage);
+    updateQueryParams(params) {
+      if (!currentPage) {
+        throw new Error('Cannot update query params before a page is loaded');
+      }
+      assign(currentData.location.params, params);
+      refresh();
+    },
+
+    updateState(state) {
+      assign(currentData.state, state);
+      if (currentPage) {
+        render();
+      }
     }
   };
 }

@@ -7,6 +7,7 @@
     "test": "test"
   },
   "scripts": {
+    "start": "nodemon demo/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -23,6 +24,7 @@
     "express": "~4.13.3",
     "browserify-middleware": "~7.0.0",
     "babelify": "~6.3.0",
-    "react": "~0.13.3"
+    "react": "~0.13.3",
+    "nodemon": "~1.4.1"
   }
 }
