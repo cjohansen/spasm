@@ -1,0 +1,28 @@
+{
+  "name": "reapp",
+  "version": "0.1.0",
+  "description": "'Just enough structure' for single page web apps with React",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "spa",
+    "data flow"
+  ],
+  "author": "Christian Johansen",
+  "license": "ISC",
+  "peerDependencies": {
+    "lodash": "~3.10.1"
+  },
+  "devDependencies": {
+    "express": "~4.13.3",
+    "browserify-middleware": "~7.0.0",
+    "babelify": "~6.3.0",
+    "react": "~0.13.3"
+  }
+}
