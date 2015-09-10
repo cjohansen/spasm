@@ -6,18 +6,19 @@ const {h1, div, p, a, button} = React.DOM;
 
 const app = createApp(document.getElementById('app'), {
   routes: [
-    ['viewPage', '/:page']
+    ['viewUser', '/users/:id'],
+    ['editUser', '/users/:id/edit']
   ],
 
-  state: {user: 'Christian'},
+  state: {currentUser: 'Christian'},
 
   finalizeData(data, location, state) {
     return assign(data, pick(state, 'flash'));
   }
 });
 
-app.addAction('gotoURL', app.gotoURL);
-app.addAction('updateState', app.updateState);
+app.addAction('gotoURL', url => app.gotoURL(url));
+app.addAction('updateState', (state, data) => app.updateState(state));
 
 const FlashMessage = React.createFactory(React.createClass({
   render() {
@@ -28,47 +29,62 @@ const FlashMessage = React.createFactory(React.createClass({
   }
 }));
 
-const PageComponent = React.createFactory(React.createClass({
+const UserComponent = React.createFactory(React.createClass({
   render() {
-    const {flash, page, text, editPageURL, actions} = this.props;
+    console.log(this.props);
+    const {flash, name, info, editUserURL, actions} = this.props;
 
     return div({},
                FlashMessage(flash),
-               h1({}, page),
-               p({}, text),
+               h1({}, name),
+               p({}, info),
                p({}, a({
-                 href: editPageURL,
-                 onClick: app.performAction(actions.editPage)
-               }, 'Edit page')),
+                 href: editUserURL,
+                 onClick: app.performAction(actions.edit)
+               }, 'Edit user')),
                p({}, button({
                  onClick: app.performAction(actions.triggerFlash)
                }, 'Trigger flash')));
   }
 }));
 
+const EditUserComponent = React.createFactory(React.createClass({
+  render() {
+    return div({},
+               FlashMessage(this.props.flash),
+               h1({}, 'Edit user'));
+  }
+}));
+
 app.addPages({
-  viewPage: {
-    getData({location, state}) {
+  viewUser: {
+    getData({location: {params: {id}}, state}) {
       return {
-        text: `Data belonging to ${state.user}`
+        id,
+        name: id[0].toUpperCase() + id.slice(1),
+        info: 'Some old user'
       };
     },
 
-    prepareData({pageData, location: {params: {page}}}) {
-      const editPageURL = app.getURL('viewPage', {page: 'editPage'});
+    prepareData({pageData: user, location}) {
+      const editUserURL = app.getURL('editUser', user);
       return {
-        page,
-        editPageURL,
-        title: `Welcome to ${page}!`,
-        text: pageData.text,
+        name: user.name,
+        title: `User: ${user.name}!`,
+        info: user.info,
+        editUserURL,
         actions: {
-          editPage: ['gotoURL', editPageURL],
+          edit: ['gotoURL', editUserURL],
           triggerFlash: ['updateState', {flash: {message: 'I am a flash'}}]
         }
       };
     },
 
-    render: PageComponent
+    render: UserComponent
+  },
+
+  editUser: {
+    render: EditUserComponent
   }
 });
 

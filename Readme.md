@@ -73,26 +73,28 @@ import {createApp} from 'reapp';
 
 const app = createApp(document.getElementById('app'), {
   routes: [
-    ['viewPage', '/:page']
+    ['viewUser', '/users/:id'],
+    ['editUser', '/users/:id/edit']
   ]
 });
 ```
 
-The app needs a definition of the `viewPage` page:
+The app needs a definition of the `viewUser` page (we'll add in the edit page
+later):
 
 ```js
 const {h1, div, p} = React.DOM;
 
-const PageComponent = React.createFactory(React.createClass({
+const UserComponent = React.createFactory(React.createClass({
   render() {
-    return h1({}, 'Hello world!');
+    return h1({}, 'Hello world');
   }
 }));
 
 app.addPages({
-  viewPage: {
+  viewUser: {
     render(data) {
-      return PageComponent(data);
+      return UserComponent(data);
     }
   }
 });
@@ -104,29 +106,31 @@ Finally, a call to `start` will trigger the initial render:
 app.start();
 ```
 
-Your app should now display "Hello world!" on any URL except the root index (due
-to the above route). Let's display the requested page name. To do so, we will
-add a function to process the data so the component only receives the bits it
-needs to render.
+Visiting
+[http://localhost:10666/users/chris](http://localhost:10666/users/chris) should
+now display "Hello world!". Let's display the requested user's name. To do so,
+we will add a function to process the data so the component only receives the
+bits it needs to render.
 
 ```js
-const PageComponent = React.createFactory(React.createClass({
+const UserComponent = React.createFactory(React.createClass({
   render() {
-    return React.DOM.h1({}, this.props.page);
+    return React.DOM.h1({}, this.props.name);
   }
 }));
 
 app.addPages({
-  viewPage: {
-    prepareData({location: {params: {page}}}) {
+  viewUser: {
+    prepareData({location: {params: {id}}}) {
+      const name = id[0].toUpperCase() + id.slice(1);
       return {
-        page,
-        title: `Welcome to ${page}!`
+        name,
+        title: `User: ${name}`
       };
     },
 
     render(data) {
-      return PageComponent(data);
+      return UserComponent(data);
     }
   }
 });
@@ -143,31 +147,33 @@ requires logging in a user, you might want to store the user in the client-side
 state, and look it up to retrieve user-specific data:
 
 ```js
-const PageComponent = React.createFactory(React.createClass({
+const UserComponent = React.createFactory(React.createClass({
   render() {
     return div({},
-               h1({}, this.props.page),
-               p({}, this.props.text));
+               h1({}, this.props.name),
+               p({}, this.props.info));
   }
 }));
 
 app.addPages({
-  viewPage: {
-    getData({location, state}) {
+  viewUser: {
+    getData({location: {params: {id}}, state}) {
       return {
-        text: `Data belonging to ${state.user}`
+        id,
+        name: id[0].toUpperCase() + id.slice(1),
+        info: 'Some old user'
       };
     },
 
-    prepareData({pageData, location: {params: {page}}}) {
+    prepareData({pageData: user, location}) {
       return {
-        page,
-        title: `Welcome to ${page}!`,
-        text: pageData.text
+        name: user.name,
+        title: `User: ${user.name}!`,
+        info: user.info
       };
     },
 
-    render: PageComponent
+    render: UserComponent
   }
 });
 ```
@@ -182,10 +188,11 @@ Initial state can be provided when creating the app:
 ```js
 const app = createApp(document.getElementById('app'), {
   routes: [
-    ['viewPage', '/:page']
+    ['viewUser', '/users/:id'],
+    ['editUser', '/users/:id/edit']
   ],
 
-  state: {user: 'Christian'}
+  state: {currentUser: 'Christian'}
 });
 ```
 
@@ -193,46 +200,46 @@ Let's add an action to the application - a regular link that loads a different
 page. First, we will define the action itself:
 
 ```js
-app.addAction('gotoURL', (url) => app.gotoURL(url));
+app.addAction('gotoURL', url => app.gotoURL(url));
 ```
 
 To trigger this action in the component, we should first expose it in
 `prepareData`:
 
 ```js
-prepareData({pageData, location: {params: {page}}}) {
-  const editPageURL = app.getURL('viewPage', {page: 'editPage'});
+prepareData({pageData: user, location}) {
+  const editUserURL = app.getURL('editUser', user);
   return {
-    page,
-    editPageURL,
-    title: `Welcome to ${page}!`,
-    text: pageData.text,
+    name: user.name,
+    title: `User: ${user.name}!`,
+    info: user.info,
+    editUserURL,
     actions: {
-      editPage: ['gotoURL', editPageURL]
+      edit: ['gotoURL', editUserURL]
     }
   };
 }
 ```
 
-This adds two things: the `editPageURL`, which is generated from the
+This adds two things: the `editUserURL`, which is generated from the
 bi-directional router, and the action. Note how `prepareData` makes all the
 decisions on what data to display and what data to pass with actions. This
 separation of concerns leaves our components wonderfully oblivious about details
 in our data structures, and tightly focused on rendering:
 
 ```js
-const PageComponent = React.createFactory(React.createClass({
+const UserComponent = React.createFactory(React.createClass({
   render() {
     return div({},
-               h1({}, this.props.page),
-               p({}, this.props.text),
+               h1({}, this.props.name),
+               p({}, this.props.info),
                p({}, a({
-                 href: this.props.editPageURL,
+                 href: this.props.editUserURL,
                  onClick(e) {
                    e.preventDefault()
-                   app.triggerAction(this.props.actions.editPage);
+                   app.triggerAction(this.props.actions.edit);
                  }
-               }, 'Edit page')));
+               }, 'Edit user')));
   }
 }));
 ```
@@ -243,8 +250,30 @@ provides a helper for it:
 ```js
 a({
   href: this.props.editPageURL,
-  onClick: app.performAction(this.props.actions.editPage)
+  onClick: app.performAction(this.props.actions.edit)
 }, 'Edit page')
+```
+
+Clicking the link will produce a 404, because we haven't implemented the
+`editUser` page yet, here's a stub:
+
+```js
+const EditUserComponent = React.createFactory(React.createClass({
+  render() {
+    return div({},
+               h1({}, 'Edit user'));
+  }
+}));
+
+app.addPages({
+  viewUser: {
+    // ...
+  },
+
+  editUser: {
+    render: EditUserComponent
+  }
+});
 ```
 
 For our final example, we will consider adding a "flash message" - a message
@@ -253,25 +282,21 @@ We will start by adding a new action. It will add some data to the client-side
 state and trigger a re-render.
 
 ```js
-import {assign} from 'lodash/object/assign';
-
-// ...
-
 app.addAction('updateState', (state, data) => app.updateState(state));
 ```
 
 Next up, we will include an action for the UI so it can trigger the flash:
 
 ```js
-prepareData({pageData, location: {params: {page}}}) {
-  const editPageURL = app.getURL('viewPage', {page: 'editPage'});
+prepareData({pageData: user, location}) {
+  const editUserURL = app.getURL('editUser', user);
   return {
-    page,
-    editPageURL,
-    title: `Welcome to ${page}!`,
-    text: pageData.text,
+    name: user.name,
+    title: `User: ${user.name}!`,
+    info: user.info,
+    editUserURL,
     actions: {
-      editPage: ['gotoURL', editPageURL],
+      edit: ['gotoURL', editUserURL],
       triggerFlash: ['updateState', {flash: {message: 'I am a flash'}}]
     }
   };
@@ -284,12 +309,16 @@ the code in `prepareData` on all the pages. This is what the app's global
 along with the client-side state and the current location:
 
 ```js
+import assign from 'lodash/object/assign';
+import pick from 'lodash/object/pick';
+
 const app = createApp(document.getElementById('app'), {
   routes: [
-    ['viewPage', '/:page']
+    ['viewUser', '/users/:id'],
+    ['editUser', '/users/:id/edit']
   ],
 
-  state: {user: 'Christian'},
+  state: {currentUser: 'Christian'},
 
   finalizeData(data, location, state) {
     return assign(data, pick(state, 'flash'));
@@ -310,21 +339,30 @@ const FlashMessage = React.createFactory(React.createClass({
   }
 }));
 
-const PageComponent = React.createFactory(React.createClass({
+const UserComponent = React.createFactory(React.createClass({
   render() {
-    const {flash, page, text, editPageURL, actions} = this.props;
+    console.log(this.props);
+    const {flash, name, info, editUserURL, actions} = this.props;
 
     return div({},
                FlashMessage(flash),
-               h1({}, page),
-               p({}, text),
+               h1({}, name),
+               p({}, info),
                p({}, a({
-                 href: editPageURL,
-                 onClick: app.performAction(actions.editPage)
-               }, 'Edit page')),
+                 href: editUserURL,
+                 onClick: app.performAction(actions.edit)
+               }, 'Edit user')),
                p({}, button({
                  onClick: app.performAction(actions.triggerFlash)
                }, 'Trigger flash')));
+  }
+}));
+
+const EditUserComponent = React.createFactory(React.createClass({
+  render() {
+    return div({},
+               FlashMessage(this.props.flash),
+               h1({}, 'Edit user'));
   }
 }));
 ```
