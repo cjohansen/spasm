@@ -70,6 +70,7 @@ export function createApp(el, {routes, state, finalizeData}) {
   };
 
   return {
+    el,
     loadURL,
     triggerAction,
     refresh,
