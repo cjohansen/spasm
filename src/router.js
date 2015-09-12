@@ -1,10 +1,16 @@
-import {assign, curry, find} from 'lodash';
-
 function first(pred, coll) {
   for (let i = 0, l = coll.length; i < l; ++i) {
     const res = pred(coll[i]);
     if (res) {
       return res;
+    }
+  }
+}
+
+function find(pred, coll) {
+  for (let i = 0, l = coll.length; i < l; ++i) {
+    if (pred(coll[i])) {
+      return coll[i];
     }
   }
 }
@@ -16,9 +22,9 @@ function formatURL(route, params) {
   }, route.route);
 }
 
-export const getURL = curry((routes, page, params) => {
+export function getURL(routes, page, params) {
   return formatURL(find(routes, r => r.page === page), params);
-});
+}
 
 function val(v) {
   if (!v) {
@@ -28,7 +34,10 @@ function val(v) {
 }
 
 function mapify(pairs = []) {
-  return pairs.reduce((m, [k, v]) => assign(m, {[k]: val(v)}), {});
+  return pairs.reduce((m, [k, v]) => {
+    m[k] = v;
+    return m;
+  }, {});
 }
 
 export function toURLString({query, path}) {
@@ -58,9 +67,9 @@ export function match({regexp, page, paramNames}, url) {
   };
 }
 
-export const getPage = curry((routes, url) => {
+export function getPage(routes, url) {
   return first(route => match(route, url), routes) || {params: {}};
-});
+}
 
 export function createRoutes(routes) {
   return routes.map(([page, route]) => {

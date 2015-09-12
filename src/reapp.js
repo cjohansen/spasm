@@ -1,7 +1,6 @@
 /*global React*/
 import {createRoutes, getPage, getURL, toURLString} from './router';
 import {EventEmitter} from 'events';
-import assign from 'lodash/object/assign';
 import notFound from './not-found';
 
 function getData(page, currentData) {
@@ -105,13 +104,13 @@ export function createApp(el, {routes, state, finalizeData}) {
       if (!currentPage) {
         throw new Error('Cannot update query params before a page is loaded');
       }
-      assign(currentData.location.params, params);
+      Object.keys(params).forEach(k => currentData.location.params[k] = params[k]);
       history.pushState({}, '', getCurrentURL());
       refresh();
     },
 
     updateState(state) {
-      assign(currentData.state, state);
+      Object.keys(state).forEach(k => currentData.state[k] = state[k]);
       if (currentPage) {
         render();
       }

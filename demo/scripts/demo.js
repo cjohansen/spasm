@@ -1,7 +1,5 @@
 /*global React*/
 import {createApp} from '../../src/reapp';
-import assign from 'lodash/object/assign';
-import pick from 'lodash/object/pick';
 const {h1, div, p, a, button} = React.DOM;
 
 const app = createApp(document.getElementById('app'), {
@@ -13,7 +11,8 @@ const app = createApp(document.getElementById('app'), {
   state: {currentUser: 'Christian'},
 
   finalizeData(data, location, state) {
-    return assign(data, pick(state, 'flash'));
+    data.flash = state.flash;
+    return data;
   }
 });
 
