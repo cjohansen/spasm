@@ -320,6 +320,151 @@ exports['default'] = createFactory(createClass({
 module.exports = exports['default'];
 
 },{}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+exports.getURL = getURL;
+exports.toURLString = toURLString;
+exports.match = match;
+exports.getPage = getPage;
+exports.createRoutes = createRoutes;
+function first(pred, coll) {
+  for (var i = 0, l = coll.length; i < l; ++i) {
+    var res = pred(coll[i]);
+    if (res) {
+      return res;
+    }
+  }
+}
+
+function find(pred, coll) {
+  for (var i = 0, l = coll.length; i < l; ++i) {
+    if (pred(coll[i])) {
+      return coll[i];
+    }
+  }
+}
+
+function formatURL(route, params) {
+  if (!route) {
+    return null;
+  }
+  return route.paramNames.reduce(function (url, param) {
+    return url.replace(':' + param, params[param]);
+  }, route.route);
+}
+
+function getURL(routes, page, params) {
+  return formatURL(find(function (r) {
+    return r.page === page;
+  }, routes), params);
+}
+
+function val(v) {
+  if (!v) {
+    return true;
+  }
+  return (/^-?\d+(\.\d+)?$/.test(v.trim()) ? parseFloat(v) : v
+  );
+}
+
+function mapify() {
+  var pairs = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+  return pairs.reduce(function (m, _ref) {
+    var _ref2 = _slicedToArray(_ref, 2);
+
+    var k = _ref2[0];
+    var v = _ref2[1];
+
+    m[k] = v;
+    return m;
+  }, {});
+}
+
+function toURLString(_ref3) {
+  var query = _ref3.query;
+  var path = _ref3.path;
+
+  var queryString = Object.keys(query).map(function (k) {
+    if (query[k] === null || query[k] === undefined) {
+      return null;
+    }
+    if (query[k] === true) {
+      return k;
+    }
+    return k + '=' + query[k];
+  }).filter(function (p) {
+    return p;
+  }).join('&');
+  return path + (queryString ? '?' + queryString : '');
+}
+
+;
+
+function match(_ref4, url) {
+  var regexp = _ref4.regexp;
+  var page = _ref4.page;
+  var paramNames = _ref4.paramNames;
+
+  var _url$split = url.split('?');
+
+  var _url$split2 = _slicedToArray(_url$split, 2);
+
+  var path = _url$split2[0];
+  var query = _url$split2[1];
+
+  var vals = path.match(regexp);
+  if (!vals) {
+    return null;
+  }
+
+  return {
+    page: page,
+    url: url,
+    path: path.replace(/^(https?:\/\/[^\/]+)/, ''),
+    params: mapify(vals.slice(1).map(function (v, idx) {
+      return [paramNames[idx], v];
+    })),
+    query: mapify(query && query.split('&').map(function (kv) {
+      return kv.split('=');
+    }))
+  };
+}
+
+function getPage(routes, url) {
+  return first(function (route) {
+    return match(route, url);
+  }, routes) || { params: {} };
+}
+
+function createRoutes(routes) {
+  return routes.map(function (_ref5) {
+    var _ref52 = _slicedToArray(_ref5, 2);
+
+    var page = _ref52[0];
+    var route = _ref52[1];
+
+    var paramNames = (route.match(/:[a-zA-Z0-9]+/g) || []).map(function (n) {
+      return n.slice(1);
+    });
+    return {
+      page: page,
+      paramNames: paramNames,
+      route: route,
+      regexp: new RegExp(paramNames.reduce(function (page, param) {
+        return page.replace(':' + param, '([^/?]+)');
+      }, route) + '$')
+    };
+  });
+}
+
+},{}],4:[function(require,module,exports){
 /*global React*/
 'use strict';
 
@@ -422,7 +567,14 @@ function createApp(el, _ref) {
     triggerAction: triggerAction,
     refresh: refresh,
     getCurrentURL: getCurrentURL,
-    getURL: (0, _router.getURL)(routes),
+
+    getURL: function getURL() {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return _router.getURL.apply(undefined, [routes].concat(args));
+    },
 
     addAction: function addAction(event, handler) {
       bus.on(event, function (data) {
@@ -474,149 +626,4 @@ function createApp(el, _ref) {
   };
 }
 
-},{"./not-found":2,"./router":4,"events":1}],4:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
-
-exports.getURL = getURL;
-exports.toURLString = toURLString;
-exports.match = match;
-exports.getPage = getPage;
-exports.createRoutes = createRoutes;
-function first(pred, coll) {
-  for (var i = 0, l = coll.length; i < l; ++i) {
-    var res = pred(coll[i]);
-    if (res) {
-      return res;
-    }
-  }
-}
-
-function find(pred, coll) {
-  for (var i = 0, l = coll.length; i < l; ++i) {
-    if (pred(coll[i])) {
-      return coll[i];
-    }
-  }
-}
-
-function formatURL(route, params) {
-  if (!route) {
-    return null;
-  }
-  return route.paramNames.reduce(function (url, param) {
-    return url.replace(':' + param, params[param]);
-  }, route.route);
-}
-
-function getURL(routes, page, params) {
-  return formatURL(find(routes, function (r) {
-    return r.page === page;
-  }), params);
-}
-
-function val(v) {
-  if (!v) {
-    return true;
-  }
-  return (/^-?\d+(\.\d+)?$/.test(v.trim()) ? parseFloat(v) : v
-  );
-}
-
-function mapify() {
-  var pairs = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-
-  return pairs.reduce(function (m, _ref) {
-    var _ref2 = _slicedToArray(_ref, 2);
-
-    var k = _ref2[0];
-    var v = _ref2[1];
-
-    m[k] = v;
-    return m;
-  }, {});
-}
-
-function toURLString(_ref3) {
-  var query = _ref3.query;
-  var path = _ref3.path;
-
-  var queryString = Object.keys(query).map(function (k) {
-    if (query[k] === null || query[k] === undefined) {
-      return null;
-    }
-    if (query[k] === true) {
-      return k;
-    }
-    return k + '=' + query[k];
-  }).filter(function (p) {
-    return p;
-  }).join('&');
-  return path + (queryString ? '?' + queryString : '');
-}
-
-;
-
-function match(_ref4, url) {
-  var regexp = _ref4.regexp;
-  var page = _ref4.page;
-  var paramNames = _ref4.paramNames;
-
-  var _url$split = url.split('?');
-
-  var _url$split2 = _slicedToArray(_url$split, 2);
-
-  var path = _url$split2[0];
-  var query = _url$split2[1];
-
-  var vals = path.match(regexp);
-  if (!vals) {
-    return null;
-  }
-
-  return {
-    page: page,
-    url: url,
-    path: path.replace(/^(https?:\/\/[^\/]+)/, ''),
-    params: mapify(vals.slice(1).map(function (v, idx) {
-      return [paramNames[idx], v];
-    })),
-    query: mapify(query && query.split('&').map(function (kv) {
-      return kv.split('=');
-    }))
-  };
-}
-
-function getPage(routes, url) {
-  return first(function (route) {
-    return match(route, url);
-  }, routes) || { params: {} };
-}
-
-function createRoutes(routes) {
-  return routes.map(function (_ref5) {
-    var _ref52 = _slicedToArray(_ref5, 2);
-
-    var page = _ref52[0];
-    var route = _ref52[1];
-
-    var paramNames = (route.match(/:[a-zA-Z0-9]+/g) || []).map(function (n) {
-      return n.slice(1);
-    });
-    return {
-      page: page,
-      paramNames: paramNames,
-      route: route,
-      regexp: new RegExp(paramNames.reduce(function (page, param) {
-        return page.replace(':' + param, '([^/?]+)');
-      }, route) + '$')
-    };
-  });
-}
-
-},{}]},{},[3]);
+},{"./not-found":2,"./router":3,"events":1}]},{},[4]);
