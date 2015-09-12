@@ -1,5 +1,5 @@
 {
-  "name": "reapp",
+  "name": "spreact",
   "version": "0.1.0",
   "description": "'Just enough structure' for single page web apps with React",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "nodemon demo/index.js",
-    "build": "browserify -t babelify -o reapp.js src/reapp.js",
+    "build": "browserify -t babelify -o spreact.js src/spreact.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "npm run build"
   },

@@ -23,7 +23,7 @@ function formatURL(route, params) {
 }
 
 export function getURL(routes, page, params) {
-  return formatURL(find(routes, r => r.page === page), params);
+  return formatURL(find(r => r.page === page, routes), params);
 }
 
 function val(v) {

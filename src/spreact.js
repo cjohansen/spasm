@@ -74,7 +74,10 @@ export function createApp(el, {routes, state, finalizeData}) {
     triggerAction,
     refresh,
     getCurrentURL,
-    getURL: getURL(routes),
+
+    getURL(...args) {
+      return getURL(routes, ...args);
+    },
 
     addAction(event, handler) {
       bus.on(event, data => handler(data, currentData));

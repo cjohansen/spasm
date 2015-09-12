@@ -1,5 +1,5 @@
 /*global React*/
-import {createApp} from '../../src/reapp';
+import {createApp} from '../../src/spreact';
 const {h1, div, p, a, button} = React.DOM;
 
 const app = createApp(document.getElementById('app'), {
@@ -30,7 +30,6 @@ const FlashMessage = React.createFactory(React.createClass({
 
 const UserComponent = React.createFactory(React.createClass({
   render() {
-    console.log(this.props);
     const {flash, name, info, editUserURL, actions} = this.props;
 
     return div({},
