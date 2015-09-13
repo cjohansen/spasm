@@ -2,13 +2,13 @@
   "name": "spreact",
   "version": "0.2.0",
   "description": "'Just enough structure' for single page web apps with React",
-  "main": "index.js",
+  "main": "spreact.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "start": "nodemon demo/index.js",
-    "build": "browserify -t babelify -o spreact.js src/spreact.js",
+    "build": "browserify -s spreact -t babelify -o spreact.js src/spreact.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "npm run build"
   },
