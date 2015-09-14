@@ -302,16 +302,21 @@ function isUndefined(arg) {
 }
 
 },{}],2:[function(_dereq_,module,exports){
-/*global React*/
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
-var _React = React;
-var h1 = _React.DOM.h1;
-var createFactory = _React.createFactory;
-var createClass = _React.createClass;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = _dereq_('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var h1 = _react2['default'].DOM.h1;
+var createFactory = _react2['default'].createFactory;
+var createClass = _react2['default'].createClass;
 exports['default'] = createFactory(createClass({
   render: function render() {
     return h1({}, 'Page not found');
@@ -319,7 +324,7 @@ exports['default'] = createFactory(createClass({
 }));
 module.exports = exports['default'];
 
-},{}],3:[function(_dereq_,module,exports){
+},{"react":"react"}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -465,7 +470,6 @@ function createRoutes(routes) {
 }
 
 },{}],4:[function(_dereq_,module,exports){
-/*global React*/
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -478,6 +482,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
+
+var _react = _dereq_('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 var _router = _dereq_('./router');
 
@@ -519,7 +527,7 @@ function createApp(el, _ref) {
   function render() {
     var data = finalizeData(prep(currentPage, currentData), currentData.location, currentData.state);
     document.title = data.title || '';
-    React.render(currentPage.render(data), el);
+    _react2['default'].render(currentPage.render(data), el);
   }
 
   function renderPage(page) {
@@ -626,5 +634,5 @@ function createApp(el, _ref) {
   };
 }
 
-},{"./not-found":2,"./router":3,"events":1}]},{},[4])(4)
+},{"./not-found":2,"./router":3,"events":1,"react":"react"}]},{},[4])(4)
 });

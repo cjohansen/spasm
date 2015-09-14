@@ -1,5 +1,5 @@
-/*global React*/
-const {DOM: {h1}, createFactory, createClass} = React;
+import react from 'react';
+const {DOM: {h1}, createFactory, createClass} = react;
 
 export default createFactory(createClass({
   render() {

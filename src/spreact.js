@@ -1,4 +1,4 @@
-/*global React*/
+import react from 'react';
 import {createRoutes, getPage, getURL, toURLString} from './router';
 import {EventEmitter} from 'events';
 import notFound from './not-found';
@@ -30,7 +30,7 @@ export function createApp(el, {routes, state, finalizeData}) {
       currentData.state
     );
     document.title = data.title || '';
-    React.render(currentPage.render(data), el);
+    react.render(currentPage.render(data), el);
   }
 
   function renderPage(page) {

@@ -1,6 +1,6 @@
 {
   "name": "spreact",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "'Just enough structure' for single page web apps with React",
   "main": "spreact.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "nodemon demo/index.js",
-    "build": "browserify -s spreact -t babelify -p browserify-derequire -o spreact.js src/spreact.js",
+    "build": "browserify -s spreact -x react -t babelify -p browserify-derequire -o spreact.js src/spreact.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "npm run build"
   },
