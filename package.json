@@ -1,6 +1,6 @@
 {
   "name": "spreact",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "'Just enough structure' for single page web apps with React",
   "main": "spreact.js",
   "directories": {
