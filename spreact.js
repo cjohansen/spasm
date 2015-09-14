@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.spreact = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.spreact = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -301,7 +301,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],2:[function(require,module,exports){
+},{}],2:[function(_dereq_,module,exports){
 /*global React*/
 'use strict';
 
@@ -319,7 +319,7 @@ exports['default'] = createFactory(createClass({
 }));
 module.exports = exports['default'];
 
-},{}],3:[function(require,module,exports){
+},{}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -464,7 +464,7 @@ function createRoutes(routes) {
   });
 }
 
-},{}],4:[function(require,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 /*global React*/
 'use strict';
 
@@ -479,11 +479,11 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
-var _router = require('./router');
+var _router = _dereq_('./router');
 
-var _events = require('events');
+var _events = _dereq_('events');
 
-var _notFound = require('./not-found');
+var _notFound = _dereq_('./not-found');
 
 var _notFound2 = _interopRequireDefault(_notFound);
 
