@@ -55,7 +55,18 @@ export function createApp(el, {routes, state, finalizeData}) {
     bus.emit(action, ...args);
   }
 
-  function refresh() {
+  function updateState(state) {
+    Object.keys(state).forEach(k => {
+      if (state[k] === null) {
+        delete currentData.state[k];
+      } else {
+        currentData.state[k] = state[k];
+      }
+    });
+  }
+
+  function refresh(state = {}) {
+    updateState(state);
     renderPage(currentPage);
   }
 
@@ -112,13 +123,7 @@ export function createApp(el, {routes, state, finalizeData}) {
     },
 
     updateState(state) {
-      Object.keys(state).forEach(k => {
-        if (state[k] === null) {
-          delete currentData.state[k];
-        } else {
-          currentData.state[k] = state[k]
-        }
-      });
+      updateState(state);
       if (currentPage) {
         render();
       }

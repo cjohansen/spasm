@@ -455,9 +455,10 @@ app.action('addQueryParams', (params, {location}) => {
 });
 ```
 
-### `app.refresh()`
+### `app.refresh([state])`
 
 Runs the current page over again - fetches data, prepares data and renders.
+Optionally takes some new client-side state.
 
 ### `app.updateState(state)`
 
