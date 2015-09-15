@@ -112,7 +112,13 @@ export function createApp(el, {routes, state, finalizeData}) {
     },
 
     updateState(state) {
-      Object.keys(state).forEach(k => currentData.state[k] = state[k]);
+      Object.keys(state).forEach(k => {
+        if (state[k] === null) {
+          delete currentData.state[k];
+        } else {
+          currentData.state[k] = state[k]
+        }
+      });
       if (currentPage) {
         render();
       }
