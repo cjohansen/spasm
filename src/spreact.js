@@ -91,7 +91,7 @@ export function createApp(el, {routes, state, finalizeData}) {
     },
 
     addAction(event, handler) {
-      bus.on(event, data => handler(data, currentData));
+      bus.on(event, (...data) => handler(...data, currentData));
     },
 
     performAction(action) {

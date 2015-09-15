@@ -603,8 +603,12 @@ function createApp(el, _ref) {
     },
 
     addAction: function addAction(event, handler) {
-      bus.on(event, function (data) {
-        return handler(data, currentData);
+      bus.on(event, function () {
+        for (var _len3 = arguments.length, data = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+          data[_key3] = arguments[_key3];
+        }
+
+        return handler.apply(undefined, data.concat([currentData]));
       });
     },
 
