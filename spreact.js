@@ -552,12 +552,25 @@ function createApp(el, _ref) {
     var args = _ref22.slice(1);
 
     if (bus.listeners(action).length === 0) {
-      throw new Error('Tried to trigger action ' + action + ' (' + args + '),\n                      which has no handlers');
+      throw new Error('Tried to trigger action ' + action + ' (' + args + '), which has no handlers');
     }
     bus.emit.apply(bus, [action].concat(_toConsumableArray(args)));
   }
 
+  function _updateState(state) {
+    Object.keys(state).forEach(function (k) {
+      if (state[k] === null) {
+        delete currentData.state[k];
+      } else {
+        currentData.state[k] = state[k];
+      }
+    });
+  }
+
   function refresh() {
+    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    _updateState(state);
     renderPage(currentPage);
   }
 
@@ -624,9 +637,7 @@ function createApp(el, _ref) {
     },
 
     updateState: function updateState(state) {
-      Object.keys(state).forEach(function (k) {
-        return currentData.state[k] = state[k];
-      });
+      _updateState(state);
       if (currentPage) {
         render();
       }
