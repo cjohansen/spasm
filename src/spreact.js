@@ -50,8 +50,7 @@ export function createApp(el, {routes, state, finalizeData}) {
 
   function triggerAction([action, ...args]) {
     if (bus.listeners(action).length === 0) {
-      throw new Error(`Tried to trigger action ${action} (${args}),
-                      which has no handlers`);
+      throw new Error(`Tried to trigger action ${action} (${args}), which has no handlers`);
     }
     bus.emit(action, ...args);
   }
