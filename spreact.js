@@ -549,8 +549,13 @@ function createApp(el, _ref) {
 
     var action = _ref22[0];
 
-    var args = _ref22.slice(1);
+    var actionArgs = _ref22.slice(1);
 
+    for (var _len = arguments.length, callTimeArgs = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      callTimeArgs[_key - 1] = arguments[_key];
+    }
+
+    var args = actionArgs.concat(callTimeArgs);
     if (bus.listeners(action).length === 0) {
       throw new Error('Tried to trigger action ' + action + ' (' + args + '), which has no handlers');
     }
@@ -590,8 +595,8 @@ function createApp(el, _ref) {
     getCurrentURL: getCurrentURL,
 
     getURL: function getURL() {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
       }
 
       return _router.getURL.apply(undefined, [routes].concat(args));

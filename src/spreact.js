@@ -48,7 +48,8 @@ export function createApp(el, {routes, state, finalizeData}) {
     renderPage(pages[res.page] || pages[404] || {render: notFound});
   }
 
-  function triggerAction([action, ...args]) {
+  function triggerAction([action, ...actionArgs], ...callTimeArgs) {
+    const args = actionArgs.concat(callTimeArgs);
     if (bus.listeners(action).length === 0) {
       throw new Error(`Tried to trigger action ${action} (${args}), which has no handlers`);
     }
