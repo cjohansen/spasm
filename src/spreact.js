@@ -81,10 +81,6 @@ export function createApp(el, {routes, state, finalizeData}) {
     return toURLString(currentData.location);
   }
 
-  window.onpopstate = function () {
-    loadURL(location.href);
-  };
-
   return {
     el,
     loadURL,
@@ -112,6 +108,10 @@ export function createApp(el, {routes, state, finalizeData}) {
     },
 
     start() {
+      window.onpopstate = function () {
+        loadURL(location.href);
+      };
+
       loadURL(location.href);
     },
 
