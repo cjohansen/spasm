@@ -538,7 +538,20 @@ function createApp(el, _ref) {
     });
   }
 
+  function _updateState(state) {
+    Object.keys(state).forEach(function (k) {
+      if (state[k] === null) {
+        delete currentData.state[k];
+      } else {
+        currentData.state[k] = state[k];
+      }
+    });
+  }
+
   function loadURL(url) {
+    var state = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    _updateState(state);
     var res = (0, _router.getPage)(routes, url);
     currentData.location = res;
     renderPage(pages[res.page] || pages[404] || { render: _notFound2['default'] });
@@ -560,16 +573,6 @@ function createApp(el, _ref) {
       throw new Error('Tried to trigger action ' + action + ' (' + args + '), which has no handlers');
     }
     bus.emit.apply(bus, [action].concat(_toConsumableArray(args)));
-  }
-
-  function _updateState(state) {
-    Object.keys(state).forEach(function (k) {
-      if (state[k] === null) {
-        delete currentData.state[k];
-      } else {
-        currentData.state[k] = state[k];
-      }
-    });
   }
 
   function refresh() {
@@ -630,8 +633,10 @@ function createApp(el, _ref) {
     },
 
     gotoURL: function gotoURL(url) {
+      var state = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
       history.pushState({}, '', url);
-      loadURL(url);
+      loadURL(url, state);
     },
 
     updateQueryParams: function updateQueryParams(params) {

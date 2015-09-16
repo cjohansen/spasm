@@ -407,12 +407,12 @@ the result of the router's parsing, see below. `state` is the client-side state.
 The object returned from this function will be passed to the page's `render`
 function.
 
-### `app.loadURL(url)`
+### `app.loadURL(url[, state])`
 
 Use the router to resolve the page for this URL, fetch its data, prepare it, and
-render.
+render. Optionally update client-side state as well.
 
-### `app.gotoURL(url)`
+### `app.gotoURL(url[, state])`
 
 Like `loadURL`, but also push the `url` to the browser.
 

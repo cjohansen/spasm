@@ -42,7 +42,18 @@ export function createApp(el, {routes, state, finalizeData}) {
       });
   }
 
-  function loadURL(url) {
+  function updateState(state) {
+    Object.keys(state).forEach(k => {
+      if (state[k] === null) {
+        delete currentData.state[k];
+      } else {
+        currentData.state[k] = state[k];
+      }
+    });
+  }
+
+  function loadURL(url, state = {}) {
+    updateState(state);
     const res = getPage(routes, url);
     currentData.location = res;
     renderPage(pages[res.page] || pages[404] || {render: notFound});
@@ -54,16 +65,6 @@ export function createApp(el, {routes, state, finalizeData}) {
       throw new Error(`Tried to trigger action ${action} (${args}), which has no handlers`);
     }
     bus.emit(action, ...args);
-  }
-
-  function updateState(state) {
-    Object.keys(state).forEach(k => {
-      if (state[k] === null) {
-        delete currentData.state[k];
-      } else {
-        currentData.state[k] = state[k];
-      }
-    });
   }
 
   function refresh(state = {}) {
@@ -109,9 +110,9 @@ export function createApp(el, {routes, state, finalizeData}) {
       loadURL(location.href);
     },
 
-    gotoURL(url) {
+    gotoURL(url, state = {}) {
       history.pushState({}, '', url);
-      loadURL(url);
+      loadURL(url, state);
     },
 
     updateQueryParams(params) {
