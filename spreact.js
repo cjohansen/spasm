@@ -557,22 +557,26 @@ function createApp(el, _ref) {
     renderPage(pages[res.page] || pages[404] || { render: _notFound2['default'] });
   }
 
-  function triggerAction(_ref2) {
-    var _ref22 = _toArray(_ref2);
+  function triggerAction(action) {
+    if (!action) {
+      return;
+    }
 
-    var action = _ref22[0];
+    var _action = _toArray(action);
 
-    var actionArgs = _ref22.slice(1);
+    var actionName = _action[0];
+
+    var actionArgs = _action.slice(1);
 
     for (var _len = arguments.length, callTimeArgs = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       callTimeArgs[_key - 1] = arguments[_key];
     }
 
     var args = actionArgs.concat(callTimeArgs);
-    if (bus.listeners(action).length === 0) {
-      throw new Error('Tried to trigger action ' + action + ' (' + args + '), which has no handlers');
+    if (bus.listeners(actionName).length === 0) {
+      throw new Error('Tried to trigger action ' + actionName + ' (' + args + '), which has no handlers');
     }
-    bus.emit.apply(bus, [action].concat(_toConsumableArray(args)));
+    bus.emit.apply(bus, [actionName].concat(_toConsumableArray(args)));
   }
 
   function refresh() {

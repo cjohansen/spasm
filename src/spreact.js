@@ -59,12 +59,17 @@ export function createApp(el, {routes, state, finalizeData}) {
     renderPage(pages[res.page] || pages[404] || {render: notFound});
   }
 
-  function triggerAction([action, ...actionArgs], ...callTimeArgs) {
-    const args = actionArgs.concat(callTimeArgs);
-    if (bus.listeners(action).length === 0) {
-      throw new Error(`Tried to trigger action ${action} (${args}), which has no handlers`);
+  function triggerAction(action, ...callTimeArgs) {
+    if (!action) {
+      return;
     }
-    bus.emit(action, ...args);
+
+    const [actionName, ...actionArgs] = action;
+    const args = actionArgs.concat(callTimeArgs);
+    if (bus.listeners(actionName).length === 0) {
+      throw new Error(`Tried to trigger action ${actionName} (${args}), which has no handlers`);
+    }
+    bus.emit(actionName, ...args);
   }
 
   function refresh(state = {}) {
