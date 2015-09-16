@@ -526,7 +526,9 @@ function createApp(el, _ref) {
 
   function render() {
     var data = finalizeData(prep(currentPage, currentData), currentData.location, currentData.state);
-    document.title = data.title || '';
+    if (data.title) {
+      document.title = data.title;
+    }
     _react2['default'].render(currentPage.render(data), el);
   }
 
@@ -590,10 +592,6 @@ function createApp(el, _ref) {
     return (0, _router.toURLString)(currentData.location);
   }
 
-  window.onpopstate = function () {
-    loadURL(location.href);
-  };
-
   return {
     el: el,
     loadURL: loadURL,
@@ -633,6 +631,10 @@ function createApp(el, _ref) {
     },
 
     start: function start() {
+      window.onpopstate = function () {
+        loadURL(location.href);
+      };
+
       loadURL(location.href);
     },
 

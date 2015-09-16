@@ -29,7 +29,9 @@ export function createApp(el, {routes, state, finalizeData}) {
       currentData.location,
       currentData.state
     );
-    document.title = data.title || '';
+    if (data.title) {
+      document.title = data.title;
+    }
     react.render(currentPage.render(data), el);
   }
 
