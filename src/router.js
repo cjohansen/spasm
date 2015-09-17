@@ -15,11 +15,21 @@ function find(pred, coll) {
   }
 }
 
-function formatURL(route, params) {
+function qualifyURL(path, {host, port, scheme}) {
+  if (!host) {
+    return path;
+  }
+  if (port) {
+    host = host.replace(/(:.*)?$/, `:${port}`);
+  }
+  return `${scheme || 'http'}://${host.replace(/\/$/, '')}${path}`;
+}
+
+function formatURL(route, params = {}) {
   if (!route) { return null; }
-  return route.paramNames.reduce((url, param) => {
+  return qualifyURL(route.paramNames.reduce((url, param) => {
     return url.replace(':' + param, params[param]);
-  }, route.route);
+  }, route.route), params);
 }
 
 export function getURL(routes, page, params) {
@@ -51,7 +61,7 @@ export function toURLString({query, path}) {
     return `${k}=${query[k]}`;
   }).filter(p => p).join('&');
   return path + (queryString ? '?' + queryString : '');
-};
+}
 
 export function match({regexp, page, paramNames}, url) {
   const [path, query] = url.split('?');
