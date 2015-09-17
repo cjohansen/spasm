@@ -63,15 +63,20 @@ export function toURLString({query, path}) {
   return path + (queryString ? '?' + queryString : '');
 }
 
+const URL_RE = /(?:(?:(https?):)?\/\/([^:\/]+)(?::(\d+))?)?([^\?]*)(?:\?(.*))?/;
+
 export function match({regexp, page, paramNames}, url) {
-  const [path, query] = url.split('?');
+  const [, scheme, host, port, path, query] = url.match(URL_RE);
   const vals = path.match(regexp);
   if (!vals) { return null; }
 
   return {
     page,
     url,
-    path: path.replace(/^(https?:\/\/[^\/]+)/, ''),
+    path,
+    host,
+    port,
+    scheme: scheme || 'http',
     params: mapify(vals.slice(1).map((v, idx) => [paramNames[idx], v])),
     query: mapify(query && query.split('&').map(kv => kv.split('=')))
   };

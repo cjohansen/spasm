@@ -355,13 +355,29 @@ function find(pred, coll) {
   }
 }
 
-function formatURL(route, params) {
+function qualifyURL(path, _ref) {
+  var host = _ref.host;
+  var port = _ref.port;
+  var scheme = _ref.scheme;
+
+  if (!host) {
+    return path;
+  }
+  if (port) {
+    host = host.replace(/(:.*)?$/, ':' + port);
+  }
+  return (scheme || 'http') + '://' + host.replace(/\/$/, '') + path;
+}
+
+function formatURL(route) {
+  var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
   if (!route) {
     return null;
   }
-  return route.paramNames.reduce(function (url, param) {
+  return qualifyURL(route.paramNames.reduce(function (url, param) {
     return url.replace(':' + param, params[param]);
-  }, route.route);
+  }, route.route), params);
 }
 
 function getURL(routes, page, params) {
@@ -381,11 +397,11 @@ function val(v) {
 function mapify() {
   var pairs = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
-  return pairs.reduce(function (m, _ref) {
-    var _ref2 = _slicedToArray(_ref, 2);
+  return pairs.reduce(function (m, _ref2) {
+    var _ref22 = _slicedToArray(_ref2, 2);
 
-    var k = _ref2[0];
-    var v = _ref2[1];
+    var k = _ref22[0];
+    var v = _ref22[1];
 
     m[k] = v;
     return m;
@@ -410,19 +426,22 @@ function toURLString(_ref3) {
   return path + (queryString ? '?' + queryString : '');
 }
 
-;
+var URL_RE = /(?:(?:(https?):)?\/\/([^:\/]+)(?::(\d+))?)?([^\?]*)(?:\?(.*))?/;
 
 function match(_ref4, url) {
   var regexp = _ref4.regexp;
   var page = _ref4.page;
   var paramNames = _ref4.paramNames;
 
-  var _url$split = url.split('?');
+  var _url$match = url.match(URL_RE);
 
-  var _url$split2 = _slicedToArray(_url$split, 2);
+  var _url$match2 = _slicedToArray(_url$match, 6);
 
-  var path = _url$split2[0];
-  var query = _url$split2[1];
+  var scheme = _url$match2[1];
+  var host = _url$match2[2];
+  var port = _url$match2[3];
+  var path = _url$match2[4];
+  var query = _url$match2[5];
 
   var vals = path.match(regexp);
   if (!vals) {
@@ -432,7 +451,10 @@ function match(_ref4, url) {
   return {
     page: page,
     url: url,
-    path: path.replace(/^(https?:\/\/[^\/]+)/, ''),
+    path: path,
+    host: host,
+    port: port,
+    scheme: scheme || 'http',
     params: mapify(vals.slice(1).map(function (v, idx) {
       return [paramNames[idx], v];
     })),
