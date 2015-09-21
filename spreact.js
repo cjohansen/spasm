@@ -563,12 +563,15 @@ function createApp(el, _ref) {
   }
 
   function _updateState(state) {
+    if (typeof state === 'function') {
+      state = state(currentData.state);
+    }
+
     Object.keys(state).forEach(function (k) {
-      var val = typeof state[k] === 'function' ? state[k](currentData.state) : state[k];
-      if (val === null) {
+      if (state[k] === null) {
         delete currentData.state[k];
       } else {
-        currentData.state[k] = val;
+        currentData.state[k] = state[k];
       }
     });
   }
