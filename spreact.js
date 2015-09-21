@@ -564,10 +564,11 @@ function createApp(el, _ref) {
 
   function _updateState(state) {
     Object.keys(state).forEach(function (k) {
-      if (state[k] === null) {
+      var val = typeof state[k] === 'function' ? state[k](currentData.state) : state[k];
+      if (val === null) {
         delete currentData.state[k];
       } else {
-        currentData.state[k] = state[k];
+        currentData.state[k] = val;
       }
     });
   }

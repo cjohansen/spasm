@@ -46,10 +46,11 @@ export function createApp(el, {routes, state, finalizeData}) {
 
   function updateState(state) {
     Object.keys(state).forEach(k => {
-      if (state[k] === null) {
+      const val = typeof state[k] === 'function' ? state[k](currentData.state) : state[k];
+      if (val === null) {
         delete currentData.state[k];
       } else {
-        currentData.state[k] = state[k];
+        currentData.state[k] = val;
       }
     });
   }
