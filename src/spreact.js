@@ -145,7 +145,7 @@ export function createApp(el, {routes, state, finalizeData}) {
     updateState: updateStateAndRender,
 
     flashState(state, ttl = 5000) {
-      updateStateAndRender(state);
+      updateState(state);
       setTimeout(function () {
         updateStateAndRender(Object.keys(state).reduce((state, key) => {
           state[key] = null;

@@ -694,7 +694,7 @@ function createApp(el, _ref) {
     flashState: function flashState(state) {
       var ttl = arguments.length <= 1 || arguments[1] === undefined ? 5000 : arguments[1];
 
-      updateStateAndRender(state);
+      updateState(state);
       setTimeout(function () {
         updateStateAndRender(Object.keys(state).reduce(function (state, key) {
           state[key] = null;
