@@ -699,7 +699,7 @@ function createApp(el, _ref) {
         updateStateAndRender(Object.keys(state).reduce(function (state, key) {
           state[key] = null;
           return state;
-        }));
+        }, {}));
       }, ttl);
     }
   };

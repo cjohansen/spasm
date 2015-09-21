@@ -150,7 +150,7 @@ export function createApp(el, {routes, state, finalizeData}) {
         updateStateAndRender(Object.keys(state).reduce((state, key) => {
           state[key] = null;
           return state
-        }));
+        }, {}));
       }, ttl);
     }
   };
