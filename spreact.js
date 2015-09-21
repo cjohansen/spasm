@@ -562,7 +562,7 @@ function createApp(el, _ref) {
     });
   }
 
-  function _updateState(state) {
+  function updateState(state) {
     if (typeof state === 'function') {
       state = state(currentData.state);
     }
@@ -579,7 +579,7 @@ function createApp(el, _ref) {
   function loadURL(url) {
     var state = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-    _updateState(state);
+    updateState(state);
     var res = (0, _router.getPage)(routes, url);
     currentData.location = res;
     renderPage(pages[res.page] || pages[404] || { render: _notFound2['default'] });
@@ -610,12 +610,19 @@ function createApp(el, _ref) {
   function refresh() {
     var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-    _updateState(state);
+    updateState(state);
     renderPage(currentPage);
   }
 
   function getCurrentURL() {
     return (0, _router.toURLString)(currentData.location);
+  }
+
+  function updateStateAndRender(state) {
+    updateState(state);
+    if (currentPage) {
+      render();
+    }
   }
 
   return {
@@ -682,11 +689,18 @@ function createApp(el, _ref) {
       refresh();
     },
 
-    updateState: function updateState(state) {
-      _updateState(state);
-      if (currentPage) {
-        render();
-      }
+    updateState: updateStateAndRender,
+
+    flashState: function flashState(state) {
+      var ttl = arguments.length <= 1 || arguments[1] === undefined ? 5000 : arguments[1];
+
+      updateStateAndRender(state);
+      setTimeout(function () {
+        updateStateAndRender(Object.keys(state).reduce(function (state, key) {
+          state[key] = null;
+          return state;
+        }));
+      }, ttl);
     }
   };
 }

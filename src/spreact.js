@@ -87,6 +87,13 @@ export function createApp(el, {routes, state, finalizeData}) {
     return toURLString(currentData.location);
   }
 
+  function updateStateAndRender(state) {
+    updateState(state);
+    if (currentPage) {
+      render();
+    }
+  }
+
   return {
     el,
     loadURL,
@@ -135,11 +142,16 @@ export function createApp(el, {routes, state, finalizeData}) {
       refresh();
     },
 
-    updateState(state) {
-      updateState(state);
-      if (currentPage) {
-        render();
-      }
+    updateState: updateStateAndRender,
+
+    flashState(state, ttl = 5000) {
+      updateStateAndRender(state);
+      setTimeout(function () {
+        updateStateAndRender(Object.keys(state).reduce((state, key) => {
+          state[key] = null;
+          return state
+        }));
+      }, ttl);
     }
   };
 }
