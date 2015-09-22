@@ -37,7 +37,7 @@ export function createApp(el, {routes, state, finalizeData}) {
 
   function renderPage(page) {
     getData(page, currentData).
-      then(pageData => {
+      done(pageData => {
         currentData.pageData = pageData;
         currentPage = page;
         render();
