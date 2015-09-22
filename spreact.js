@@ -555,7 +555,7 @@ function createApp(el, _ref) {
   }
 
   function renderPage(page) {
-    getData(page, currentData).then(function (pageData) {
+    getData(page, currentData).done(function (pageData) {
       currentData.pageData = pageData;
       currentPage = page;
       render();
