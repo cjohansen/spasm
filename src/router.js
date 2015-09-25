@@ -75,7 +75,7 @@ export function match({regexp, page, paramNames}, url) {
     url,
     path,
     host,
-    port,
+    port: Number(port || 80),
     scheme: scheme || 'http',
     params: mapify(vals.slice(1).map((v, idx) => [paramNames[idx], v])),
     query: mapify(query && query.split('&').map(kv => kv.split('=')))
@@ -92,7 +92,7 @@ export function createRoutes(routes) {
     return {
       page,
       paramNames,
-      route: route,
+      route,
       regexp: new RegExp(paramNames.reduce((page, param) => {
         return page.replace(':' + param, '([^/?]+)');
       }, route) + '$')
