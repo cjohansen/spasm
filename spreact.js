@@ -453,7 +453,7 @@ function match(_ref4, url) {
     url: url,
     path: path,
     host: host,
-    port: port,
+    port: Number(port || 80),
     scheme: scheme || 'http',
     params: mapify(vals.slice(1).map(function (v, idx) {
       return [paramNames[idx], v];
@@ -653,7 +653,7 @@ function createApp(el, _ref) {
     performAction: function performAction(action) {
       return function (e) {
         e.preventDefault();
-        triggerAction(action);
+        triggerAction(action, e);
       };
     },
 

@@ -112,7 +112,7 @@ export function createApp(el, {routes, state, finalizeData}) {
     performAction(action) {
       return function (e) {
         e.preventDefault();
-        triggerAction(action);
+        triggerAction(action, e);
       };
     },
 
