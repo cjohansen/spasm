@@ -653,7 +653,7 @@ function createApp(el, _ref) {
     performAction: function performAction(action) {
       return function (e) {
         e.preventDefault();
-        triggerAction(action, e);
+        triggerAction(action, e.nativeEvent);
       };
     },
 
