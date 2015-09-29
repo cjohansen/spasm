@@ -1,6 +1,6 @@
 {
   "name": "spreact",
-  "version": "0.11.5",
+  "version": "0.12.0",
   "description": "'Just enough structure' for single page web apps with React",
   "main": "spreact.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "nodemon demo/index.js",
-    "build": "browserify -s spreact -x react -t babelify -p browserify-derequire -o spreact.js src/spreact.js",
+    "build": "browserify -s spreact -t babelify -p browserify-derequire -o spreact.js src/spreact.js",
     "prepublish": "npm run build",
     "test": "./node_modules/karma/bin/karma start karma.conf.js --single-run",
     "autotest": "./node_modules/karma/bin/karma start karma.conf.js"

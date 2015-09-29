@@ -308,35 +308,13 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = _dereq_('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var h1 = _react2['default'].DOM.h1;
-var createFactory = _react2['default'].createFactory;
-var createClass = _react2['default'].createClass;
-exports['default'] = createFactory(createClass({
-  render: function render() {
-    return h1({}, 'Page not found');
-  }
-}));
-module.exports = exports['default'];
-
-},{"react":"react"}],3:[function(_dereq_,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
 exports.getURL = getURL;
 exports.toURLString = toURLString;
 exports.match = match;
 exports.getPage = getPage;
+exports.createRoute = createRoute;
 exports.createRoutes = createRoutes;
 function first(pred, coll) {
   for (var i = 0, l = coll.length; i < l; ++i) {
@@ -470,28 +448,31 @@ function getPage(routes, url) {
   }, routes) || { params: {} };
 }
 
+function createRoute(page, route) {
+  var paramNames = (route.match(/:[a-zA-Z0-9]+/g) || []).map(function (n) {
+    return n.slice(1);
+  });
+  return {
+    page: page,
+    paramNames: paramNames,
+    route: route,
+    regexp: new RegExp(paramNames.reduce(function (page, param) {
+      return page.replace(':' + param, '([^/?]+)');
+    }, route) + '$')
+  };
+}
+
 function createRoutes(routes) {
   return routes.map(function (_ref5) {
     var _ref52 = _slicedToArray(_ref5, 2);
 
     var page = _ref52[0];
     var route = _ref52[1];
-
-    var paramNames = (route.match(/:[a-zA-Z0-9]+/g) || []).map(function (n) {
-      return n.slice(1);
-    });
-    return {
-      page: page,
-      paramNames: paramNames,
-      route: route,
-      regexp: new RegExp(paramNames.reduce(function (page, param) {
-        return page.replace(':' + param, '([^/?]+)');
-      }, route) + '$')
-    };
+    return createRoute(page, route);
   });
 }
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -499,23 +480,13 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports.createApp = createApp;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
-var _react = _dereq_('react');
-
-var _react2 = _interopRequireDefault(_react);
-
 var _router = _dereq_('./router');
 
 var _events = _dereq_('events');
-
-var _notFound = _dereq_('./not-found');
-
-var _notFound2 = _interopRequireDefault(_notFound);
 
 function getData(page, currentData) {
   var res = page.getData && page.getData(currentData);
@@ -532,12 +503,12 @@ function prep(page, data) {
   return page.prepareData ? page.prepareData(data) : data;
 }
 
-function createApp(el, _ref) {
-  var routes = _ref.routes;
+function createApp(_ref) {
+  var render = _ref.render;
   var state = _ref.state;
   var finalizeData = _ref.finalizeData;
 
-  routes = (0, _router.createRoutes)(routes);
+  var routes = [];
   var bus = new _events.EventEmitter();
   var pages = {};
   var currentData = { state: state || {} },
@@ -546,19 +517,23 @@ function createApp(el, _ref) {
     return d;
   };
 
-  function render() {
+  function renderApp() {
     var data = finalizeData(prep(currentPage, currentData), currentData.location, currentData.state);
     if (data.title) {
       document.title = data.title;
     }
-    _react2['default'].render(currentPage.render(data), el);
+    render(currentPage.render, data);
   }
 
   function renderPage(page) {
-    getData(page, currentData).done(function (pageData) {
+    getData(page, currentData).then(function (pageData) {
       currentData.pageData = pageData;
       currentPage = page;
-      render();
+      renderApp();
+    })['catch'](function (e) {
+      return setTimeout(function () {
+        throw e;
+      });
     });
   }
 
@@ -582,7 +557,7 @@ function createApp(el, _ref) {
     updateState(state);
     var res = (0, _router.getPage)(routes, url);
     currentData.location = res;
-    renderPage(pages[res.page] || pages[404] || { render: _notFound2['default'] });
+    renderPage(pages[res.page] || pages[404]);
   }
 
   function triggerAction(action) {
@@ -621,12 +596,11 @@ function createApp(el, _ref) {
   function updateStateAndRender(state) {
     updateState(state);
     if (currentPage) {
-      render();
+      renderApp();
     }
   }
 
   return {
-    el: el,
     loadURL: loadURL,
     triggerAction: triggerAction,
     refresh: refresh,
@@ -657,10 +631,9 @@ function createApp(el, _ref) {
       };
     },
 
-    addPages: function addPages(newPages) {
-      Object.keys(newPages).forEach(function (name) {
-        return pages[name] = newPages[name];
-      });
+    addPage: function addPage(name, route, page) {
+      routes.push((0, _router.createRoute)(name, route));
+      pages[name] = page;
     },
 
     start: function start() {
@@ -705,5 +678,5 @@ function createApp(el, _ref) {
   };
 }
 
-},{"./not-found":2,"./router":3,"events":1,"react":"react"}]},{},[4])(4)
+},{"./router":2,"events":1}]},{},[3])(3)
 });

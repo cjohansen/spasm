@@ -2,17 +2,16 @@
 import {createApp} from '../../src/spreact';
 const {h1, div, p, a, button} = React.DOM;
 
-const app = createApp(document.getElementById('app'), {
-  routes: [
-    ['viewUser', '/users/:id'],
-    ['editUser', '/users/:id/edit']
-  ],
-
+const app = createApp({
   state: {currentUser: 'Christian'},
 
   finalizeData(data, location, state) {
     data.flash = state.flash;
     return data;
+  },
+
+  render(component, data) {
+    React.render(component(data), document.getElementById('app'));
   }
 });
 
@@ -54,36 +53,34 @@ const EditUserComponent = React.createFactory(React.createClass({
   }
 }));
 
-app.addPages({
-  viewUser: {
-    getData({location: {params: {id}}, state}) {
-      return {
-        id,
-        name: id[0].toUpperCase() + id.slice(1),
-        info: 'Some old user'
-      };
-    },
-
-    prepareData({pageData: user, location}) {
-      const editUserURL = app.getURL('editUser', user);
-      return {
-        name: user.name,
-        title: `User: ${user.name}!`,
-        info: user.info,
-        editUserURL,
-        actions: {
-          edit: ['gotoURL', editUserURL],
-          triggerFlash: ['updateState', {flash: {message: 'I am a flash'}}]
-        }
-      };
-    },
-
-    render: UserComponent
+app.addPage('viewUser', '/users/:id', {
+  getData({location: {params: {id}}, state}) {
+    return {
+      id,
+      name: id[0].toUpperCase() + id.slice(1),
+      info: 'Some old user'
+    };
   },
 
-  editUser: {
-    render: EditUserComponent
-  }
+  prepareData({pageData: user, location}) {
+    const editUserURL = app.getURL('editUser', user);
+    return {
+      name: user.name,
+      title: `User: ${user.name}!`,
+      info: user.info,
+      editUserURL,
+      actions: {
+        edit: ['gotoURL', editUserURL],
+        triggerFlash: ['updateState', {flash: {message: 'I am a flash'}}]
+      }
+    };
+  },
+
+  render: UserComponent
+});
+
+app.addPage('editUser', '/users/:id/edit', {
+  render: EditUserComponent
 });
 
 app.start();

@@ -1,7 +1,5 @@
-import react from 'react';
-import {createRoutes, getPage, getURL, toURLString} from './router';
+import {createRoute, getPage, getURL, toURLString} from './router';
 import {EventEmitter} from 'events';
-import notFound from './not-found';
 
 function getData(page, currentData) {
   const res = page.getData && page.getData(currentData);
@@ -16,14 +14,14 @@ function prep(page, data) {
   return page.prepareData ? page.prepareData(data) : data;
 }
 
-export function createApp(el, {routes, state, finalizeData}) {
-  routes = createRoutes(routes);
+export function createApp({render, state, finalizeData}) {
+  const routes = [];
   const bus = new EventEmitter();
   const pages = {};
   let currentData = {state: state || {}}, currentPage;
   finalizeData = finalizeData || (d => d);
 
-  function render() {
+  function renderApp() {
     const data = finalizeData(
       prep(currentPage, currentData),
       currentData.location,
@@ -32,16 +30,17 @@ export function createApp(el, {routes, state, finalizeData}) {
     if (data.title) {
       document.title = data.title;
     }
-    react.render(currentPage.render(data), el);
+    render(currentPage.render, data);
   }
 
   function renderPage(page) {
     getData(page, currentData).
-      done(pageData => {
+      then(pageData => {
         currentData.pageData = pageData;
         currentPage = page;
-        render();
-      });
+        renderApp();
+      }).
+      catch(e => setTimeout(() => { throw e; }));
   }
 
   function updateState(state) {
@@ -62,7 +61,7 @@ export function createApp(el, {routes, state, finalizeData}) {
     updateState(state);
     const res = getPage(routes, url);
     currentData.location = res;
-    renderPage(pages[res.page] || pages[404] || {render: notFound});
+    renderPage(pages[res.page] || pages[404]);
   }
 
   function triggerAction(action, ...callTimeArgs) {
@@ -90,12 +89,11 @@ export function createApp(el, {routes, state, finalizeData}) {
   function updateStateAndRender(state) {
     updateState(state);
     if (currentPage) {
-      render();
+      renderApp();
     }
   }
 
   return {
-    el,
     loadURL,
     triggerAction,
     refresh,
@@ -116,8 +114,9 @@ export function createApp(el, {routes, state, finalizeData}) {
       };
     },
 
-    addPages(newPages) {
-      Object.keys(newPages).forEach(name => pages[name] = newPages[name]);
+    addPage(name, route, page) {
+      routes.push(createRoute(name, route));
+      pages[name] = page;
     },
 
     start() {
@@ -149,7 +148,7 @@ export function createApp(el, {routes, state, finalizeData}) {
       setTimeout(function () {
         updateStateAndRender(Object.keys(state).reduce((state, key) => {
           state[key] = null;
-          return state
+          return state;
         }, {}));
       }, ttl);
     }

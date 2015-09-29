@@ -86,16 +86,18 @@ export function getPage(routes, url) {
   return first(route => match(route, url), routes) || {params: {}};
 }
 
+export function createRoute(page, route) {
+  const paramNames = (route.match(/:[a-zA-Z0-9]+/g) || []).map(n => n.slice(1));
+  return {
+    page,
+    paramNames,
+    route,
+    regexp: new RegExp(paramNames.reduce((page, param) => {
+      return page.replace(':' + param, '([^/?]+)');
+    }, route) + '$')
+  };
+}
+
 export function createRoutes(routes) {
-  return routes.map(([page, route]) => {
-    const paramNames = (route.match(/:[a-zA-Z0-9]+/g) || []).map(n => n.slice(1));
-    return {
-      page,
-      paramNames,
-      route,
-      regexp: new RegExp(paramNames.reduce((page, param) => {
-        return page.replace(':' + param, '([^/?]+)');
-      }, route) + '$')
-    };
-  });
+  return routes.map(([page, route]) => createRoute(page, route));
 }
