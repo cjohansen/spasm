@@ -39,7 +39,7 @@ export function createApp({render, state, finalizeData}) {
       then(pageData => {
         currentData.pageData = pageData;
         currentPage = page;
-        renderApp();
+        return renderApp();
       }).
       catch(e => setTimeout(() => { throw e; }));
   }

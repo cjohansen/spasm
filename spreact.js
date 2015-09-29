@@ -523,13 +523,14 @@ function createApp(_ref) {
       document.title = data.title;
     }
     render(currentPage.render, data);
+    return data;
   }
 
   function renderPage(page) {
-    getData(page, currentData).then(function (pageData) {
+    return getData(page, currentData).then(function (pageData) {
       currentData.pageData = pageData;
       currentPage = page;
-      renderApp();
+      return renderApp();
     })['catch'](function (e) {
       return setTimeout(function () {
         throw e;
@@ -557,7 +558,7 @@ function createApp(_ref) {
     updateState(state);
     var res = (0, _router.getPage)(routes, url);
     currentData.location = res;
-    renderPage(pages[res.page] || pages[404]);
+    return renderPage(pages[res.page] || pages[404]);
   }
 
   function triggerAction(action) {
@@ -641,14 +642,14 @@ function createApp(_ref) {
         loadURL(location.href);
       };
 
-      loadURL(location.href);
+      return loadURL(location.href);
     },
 
     gotoURL: function gotoURL(url) {
       var state = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       history.pushState({}, '', url);
-      loadURL(url, state);
+      return loadURL(url, state);
     },
 
     updateQueryParams: function updateQueryParams(params) {
