@@ -31,10 +31,11 @@ export function createApp({render, state, finalizeData}) {
       document.title = data.title;
     }
     render(currentPage.render, data);
+    return data;
   }
 
   function renderPage(page) {
-    getData(page, currentData).
+    return getData(page, currentData).
       then(pageData => {
         currentData.pageData = pageData;
         currentPage = page;
@@ -61,7 +62,7 @@ export function createApp({render, state, finalizeData}) {
     updateState(state);
     const res = getPage(routes, url);
     currentData.location = res;
-    renderPage(pages[res.page] || pages[404]);
+    return renderPage(pages[res.page] || pages[404]);
   }
 
   function triggerAction(action, ...callTimeArgs) {
@@ -124,12 +125,12 @@ export function createApp({render, state, finalizeData}) {
         loadURL(location.href);
       };
 
-      loadURL(location.href);
+      return loadURL(location.href);
     },
 
     gotoURL(url, state = {}) {
       history.pushState({}, '', url);
-      loadURL(url, state);
+      return loadURL(url, state);
     },
 
     updateQueryParams(params) {
