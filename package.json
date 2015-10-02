@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "nodemon demo/index.js",
-    "build": "browserify -s spreact -t babelify -p browserify-derequire -o spreact.js src/spreact.js",
+    "build": "browserify -s spreact -t babelify -t uglifyify -p browserify-derequire -o spreact.js src/spreact.js",
+    "postbuild": "uglify -s spreact.js -o spreact.js",
     "prepublish": "npm run build",
     "test": "./node_modules/karma/bin/karma start karma.conf.js --single-run",
     "autotest": "./node_modules/karma/bin/karma start karma.conf.js"
@@ -37,6 +38,8 @@
     "nodemon": "~1.4.1",
     "react": "~0.13.3",
     "referee-sinon": "^1.0.2",
-    "sinon": "^1.17.0"
+    "sinon": "^1.17.0",
+    "uglifyify": "^3.0.1",
+    "uglify": "~0.1.5"
   }
 }

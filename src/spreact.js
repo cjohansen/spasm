@@ -75,10 +75,11 @@ export function createApp({render, state, finalizeData}) {
 
     const [actionName, ...actionArgs] = action;
     const args = actionArgs.concat(callTimeArgs);
-    if (bus.listeners(actionName).length === 0) {
+    const listeners = bus.listeners(actionName);
+    if (listeners.length === 0) {
       throw new Error(`Tried to trigger action ${actionName} (${args}), which has no handlers`);
     }
-    bus.emit(actionName, ...args);
+    return Promise.all(listeners.map(listener => listener(...args)));
   }
 
   function refresh(state = {}) {
