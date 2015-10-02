@@ -508,9 +508,9 @@ function createApp(_ref) {
   var state = _ref.state;
   var finalizeData = _ref.finalizeData;
 
+  var events = new _events.EventEmitter();
   var routes = [];
   var bus = new _events.EventEmitter();
-  var events = new _events.EventEmitter();
   var pages = {};
   var currentData = { state: state || {} },
       currentPage = undefined;
