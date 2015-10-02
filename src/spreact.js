@@ -15,9 +15,9 @@ function prep(page, data) {
 }
 
 export function createApp({render, state, finalizeData}) {
+  const events = new EventEmitter();
   const routes = [];
   const bus = new EventEmitter();
-  const events = new EventEmitter();
   const pages = {};
   let currentData = {state: state || {}}, currentPage;
   finalizeData = finalizeData || (d => d);
