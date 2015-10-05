@@ -611,7 +611,7 @@ function createApp(_ref) {
     getCurrentURL: getCurrentURL,
 
     on: events.on.bind(events),
-    off: events.off.bind(events),
+    off: events.removeListener.bind(events),
 
     getURL: function getURL() {
       for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {

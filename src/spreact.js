@@ -104,7 +104,7 @@ export function createApp({render, state, finalizeData}) {
     getCurrentURL,
 
     on: events.on.bind(events),
-    off: events.off.bind(events),
+    off: events.removeListener.bind(events),
 
     getURL(...args) {
       return getURL(routes, ...args);
