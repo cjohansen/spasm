@@ -510,6 +510,7 @@ function createApp(_ref) {
 
   var routes = [];
   var bus = new _events.EventEmitter();
+  var events = new _events.EventEmitter();
   var pages = {};
   var currentData = { state: state || {} },
       currentPage = undefined;
@@ -550,6 +551,8 @@ function createApp(_ref) {
         currentData.state[k] = state[k];
       }
     });
+
+    events.emit('updateState', currentData.state);
   }
 
   function loadURL(url) {
@@ -606,6 +609,9 @@ function createApp(_ref) {
     triggerAction: triggerAction,
     refresh: refresh,
     getCurrentURL: getCurrentURL,
+
+    on: events.on.bind(events),
+    off: events.off.bind(events),
 
     getURL: function getURL() {
       for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {

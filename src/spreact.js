@@ -17,6 +17,7 @@ function prep(page, data) {
 export function createApp({render, state, finalizeData}) {
   const routes = [];
   const bus = new EventEmitter();
+  const events = new EventEmitter();
   const pages = {};
   let currentData = {state: state || {}}, currentPage;
   finalizeData = finalizeData || (d => d);
@@ -56,6 +57,8 @@ export function createApp({render, state, finalizeData}) {
         currentData.state[k] = state[k];
       }
     });
+
+    events.emit('updateState', currentData.state);
   }
 
   function loadURL(url, state = {}) {
@@ -99,6 +102,9 @@ export function createApp({render, state, finalizeData}) {
     triggerAction,
     refresh,
     getCurrentURL,
+
+    on: events.on.bind(events),
+    off: events.off.bind(events),
 
     getURL(...args) {
       return getURL(routes, ...args);
