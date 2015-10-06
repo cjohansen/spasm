@@ -1,6 +1,6 @@
 {
   "name": "spa-sm",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "description": "Single Page Application State Manager - 'Just enough structure' for single page web apps",
   "main": "src/spasm.js",
   "directories": {
@@ -22,10 +22,10 @@
   "author": "Christian Johansen",
   "license": "ISC",
   "dependencies": {
-    "react": "~0.13.3"
+    "react": "~0.13.3",
+    "babel-runtime": "^5.8.25"
   },
   "devDependencies": {
-    "babel-runtime": "^5.8.25",
     "babelify": "~6.3.0",
     "browserify": "^11.1.0",
     "browserify-derequire": "^0.9.4",
