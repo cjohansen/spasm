@@ -98,6 +98,8 @@ export function createApp({render, state, finalizeData}) {
     }
   }
 
+  const flashSchedule = {};
+
   return {
     loadURL,
     triggerAction,
@@ -155,9 +157,16 @@ export function createApp({render, state, finalizeData}) {
 
     flashState(state, ttl = 5000) {
       updateState(state);
+      const t = new Date().getTime() + ttl;
+      Object.keys(state).forEach(k => flashSchedule[k] = t);
+
       setTimeout(function () {
-        updateStateAndRender(Object.keys(state).reduce((state, key) => {
-          state[key] = null;
+        const now = new Date().getTime();
+        updateStateAndRender(Object.keys(flashSchedule).reduce((state, key) => {
+          if (flashSchedule[key] <= now) {
+            state[key] = null;
+            delete flashSchedule[key];
+          }
           return state;
         }, {}));
       }, ttl);

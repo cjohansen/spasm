@@ -216,7 +216,7 @@ describe('Spreact', () => {
     it('accepts custom state', () => {
       return app.loadURL('/users/someone', {more: 'states'}).
         then(() => app.refresh()).
-        then(() => assert.equals(page.getData.getCall(0).args[0].state, {
+        then(() => assert.equals(page.getData.getCall(1).args[0].state, {
           some: 'state',
           more: 'states'
         }));
@@ -275,7 +275,7 @@ describe('Spreact', () => {
         then(() => app.updateQueryParams({filter: 'everything'})).
         then(() => {
           assert.equals(app.getCurrentURL(), '/users/42?filter=everything');
-          const arg = page.prepareData.getCall(0).args[0];
+          const arg = page.prepareData.getCall(1).args[0];
           assert.equals(arg.location.query, {filter: 'everything'});
         });
     });
@@ -286,10 +286,53 @@ describe('Spreact', () => {
       return app.loadURL('/users/42').
         then(() => app.updateState({user: 'Someone'})).
         then(() => {
-          const arg = page.prepareData.getCall(0).args[0];
+          const arg = page.prepareData.getCall(1).args[0];
           assert.equals(arg.state, {some: 'state', user: 'Someone'});
           assert.calledTwice(render);
         });
+    });
+  });
+
+  describe('flashState', () => {
+    it('does not automatically render', () => {
+      return app.loadURL('/users/42').
+        then(() => app.flashState({user: 'Someone'})).
+        then(() => assert.calledOnce(render));
+    });
+
+    it('sets state', () => {
+      return app.loadURL('/users/42').
+        then(() => app.flashState({user: 'Someone'})).
+        then(() => app.refresh()).
+        then(() => {
+          const arg = page.prepareData.getCall(1).args[0];
+          assert.equals(arg.state.user, 'Someone');
+        });
+    });
+
+    it('reverts state change and re-renders after timeout', (done) => {
+      app.loadURL('/users/42').
+        then(() => app.flashState({user: 'Someone'}, 5));
+
+      setTimeout(() => {
+        const arg = page.prepareData.getCall(1).args[0];
+        refute.equals(arg.state.user, 'Someone');
+        done();
+      }, 20);
+    });
+
+    it('extends timeout when re-flashing state', (done) => {
+      app.loadURL('/users/42').
+        then(() => app.flashState({user: 'Someone'}, 20)).
+        then(() => setTimeout(() => {
+          app.flashState({user: 'Other'}, 20);
+          app.refresh();
+        }, 10)).
+        then(() => setTimeout(() => {
+          const arg = page.prepareData.getCall(1).args[0];
+          assert.equals(arg.state.user, 'Other');
+          done();
+        }, 30));
     });
   });
 });
