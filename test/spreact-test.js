@@ -10,7 +10,7 @@ describe('Spreact', () => {
 
   beforeEach(() => {
     render = sinon.spy();
-    finalizeData = sinon.stub();
+    finalizeData = sinon.stub().returns({});
     state = {some: 'state'};
     app = createApp({render, finalizeData, state});
     page = {
@@ -129,6 +129,16 @@ describe('Spreact', () => {
             some: 'state',
             more: 'state'
           });
+        });
+    });
+
+    it('renders the 404 page if no matching page is found', () => {
+      const notFound = {render() {}};
+      app.addPage('404', '/404', notFound);
+
+      return app.loadURL('/zorg').
+        then(() => {
+          assert.calledOnceWith(render, notFound.render);
         });
     });
   });
