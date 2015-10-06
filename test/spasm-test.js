@@ -1,12 +1,12 @@
 /*global describe, beforeEach, it */
-import {createApp} from '../src/spreact';
+import {createApp} from '../src/spasm';
 import {assert, refute, sinon} from './test-helper';
 
 function promised(val) {
   return new Promise((resolve, reject) => resolve(val));
 }
 
-describe('Spreact', () => {
+describe('Spasm', () => {
   let app, render, finalizeData, page, state;
 
   beforeEach(() => {

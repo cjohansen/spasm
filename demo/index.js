@@ -16,5 +16,5 @@ app.get('*', function (req, res) {
 });
 
 app.listen(10666, function () {
-  console.log('Spreact demo available at http://localhost:10666/');
+  console.log('Spasm demo available at http://localhost:10666/');
 });

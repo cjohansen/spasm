@@ -1,11 +1,11 @@
-# Spreact - Single Page React Applications
+# Spa-sm - Single Page React Applications
 
-Spreact provides "just enough structure" for single page web applications that use
+Spasm provides "just enough structure" for single page web applications that use
 React for rendering.
 
 ## Concepts
 
-Spreact's goal is to help you organize data flow, and separate concerns that
+Spasm's goal is to help you organize data flow, and separate concerns that
 should not be conflated:
 
 * Data fetching
@@ -15,11 +15,11 @@ should not be conflated:
 * Triggering actions
 * Syncing/responding to URL updates
 
-Spreact defines three main concepts to help with this separation.
+Spasm defines three main concepts to help with this separation.
 
 ### Routes
 
-Spreact includes a simple router. It supports URL templates with named parts, and
+Spasm includes a simple router. It supports URL templates with named parts, and
 allows you to order routes by precedence. A route is associated with a page
 name, and is only used to resolve which page is being requested.
 
@@ -30,7 +30,7 @@ and exposes query string parameters, but cannot route based on them.
 ### Pages
 
 A page is an object with at least a `render` method, and optionally a method to
-fetch data, and a method to process data. When a page is requested, Spreact will
+fetch data, and a method to process data. When a page is requested, Spasm will
 perform the following steps to render the page:
 
 * Get data with `page.getData(currentState)`
@@ -50,10 +50,10 @@ below.
 ### Actions
 
 When the user interacts with the application, it needs to perform some work in
-response, and most of the time re-render. Spreact suggests that an action is an
+response, and most of the time re-render. Spasm suggests that an action is an
 event with some data. This means that the only thing event handlers in React
 components need to do is to emit an event, which again means less logic inside
-the components. Spreact even goes as far as suggesting that the component
+the components. Spasm even goes as far as suggesting that the component
 shouldn't even know *what arguments* to pass along with the action. This
 decision is made by `prepareData` (more on this below).
 
@@ -69,7 +69,7 @@ screen. The app is bound to an element on the page, and takes in a list of
 routes:
 
 ```js
-import {createApp} from 'spreact';
+import {createApp} from 'spasm';
 
 const app = createApp(document.getElementById('app'), {
   routes: [
@@ -136,7 +136,7 @@ app.addPages({
 });
 ```
 
-Including a `title` in the data returned from `prepareData` will cause Spreact to
+Including a `title` in the data returned from `prepareData` will cause Spasm to
 update `document.title` to reflect it.
 
 In practice, most pages need to fetch some data from somewhere. Data fetch can
@@ -367,7 +367,7 @@ const EditUserComponent = React.createFactory(React.createClass({
 }));
 ```
 
-That about sums up the important bits about Spreact. Below you will find complete
+That about sums up the important bits about Spasm. Below you will find complete
 API docs for all the details.
 
 The demo can be found in the `demo` directory, and can be run with `npm start`

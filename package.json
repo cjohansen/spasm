@@ -1,15 +1,15 @@
 {
-  "name": "spreact",
-  "version": "0.14.1",
-  "description": "'Just enough structure' for single page web apps with React",
-  "main": "src/spreact.js",
+  "name": "spa-sm",
+  "version": "0.15.0",
+  "description": "Single Page Application State Manager - 'Just enough structure' for single page web apps",
+  "main": "src/spasm.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "start": "nodemon demo/index.js",
-    "build": "browserify -s spreact -o spreact.js src/spreact.js",
-    "postbuild": "uglify -s spreact.js -o spreact.js",
+    "build": "browserify -s spasm -o spasm.js src/spasm.js",
+    "postbuild": "uglify -s spasm.js -o spasm.js",
     "prepublish": "npm run build",
     "test": "mochify test/*.js test/**/*.js",
     "autotest": "mochify --watch test/*.js test/**/*.js"

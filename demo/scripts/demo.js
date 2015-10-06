@@ -1,5 +1,5 @@
 /*global React*/
-import {createApp} from '../../src/spreact';
+import {createApp} from '../../src/spasm';
 const {h1, div, p, a, button} = React.DOM;
 
 const app = createApp({
