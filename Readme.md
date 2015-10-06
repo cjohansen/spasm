@@ -21,7 +21,7 @@ Spasm defines three main concepts to help with this separation.
 
 Spasm includes a simple router. It supports URL templates with named parts, and
 allows you to order routes by precedence. A route is associated with a page
-name, and is only used to resolve which page is being requested.
+name, and is used to resolve which page is being requested.
 
 The router is bi-directional. It can resolve page name and parameters from URLs,
 and it can generate URLs from a page name and parameters. The router also parses
@@ -36,12 +36,14 @@ perform the following steps to render the page:
 * Get data with `page.getData(currentState)`
 * Prepare data for rendering with `page.prepareData(data)`
 * Finalize data for rendering with `app.finalizeData(preparedData, location, state)`
-* Render with `page.render(data)`, which should return a rendered React
-  component
+* Call on the app's `render` function with `page.render` and the prepared data
+
+Spasm makes no assumptions about your render function, what or who will render
+your app, or how this happens.
 
 The goal of this pipeline is to avoid putting data fetching and processing
-inside components. By keeping these separate in pure functions, the UI becomes a
-1:1 visual representation of a data structure. This data structure is
+inside UI components. By keeping these separate in pure functions, the UI
+becomes a 1:1 visual representation of a data structure. This data structure is
 dramatically easier to test than a complex and ever-changing UI.
 
 The details of the various function calls can be found in the API documentation
@@ -51,9 +53,9 @@ below.
 
 When the user interacts with the application, it needs to perform some work in
 response, and most of the time re-render. Spasm suggests that an action is an
-event with some data. This means that the only thing event handlers in React
-components need to do is to emit an event, which again means less logic inside
-the components. Spasm even goes as far as suggesting that the component
+event with some data. This means that the only thing event handlers in e.g.
+React components need to do is to emit an event, which again means less logic
+inside the components. Spasm even goes as far as suggesting that the component
 shouldn't even know *what arguments* to pass along with the action. This
 decision is made by `prepareData` (more on this below).
 
@@ -69,18 +71,17 @@ screen. The app is bound to an element on the page, and takes in a list of
 routes:
 
 ```js
-import {createApp} from 'spasm';
+import {createApp} from 'spa-sm';
+import react from 'react';
 
-const app = createApp(document.getElementById('app'), {
-  routes: [
-    ['viewUser', '/users/:id'],
-    ['editUser', '/users/:id/edit']
-  ]
+const app = createApp({
+  render(component, data) {
+    react.render(component(data), document.getElementById('app'));
+  }
 });
 ```
 
-The app needs a definition of the `viewUser` page (we'll add in the edit page
-later):
+The app needs at least one page (we'll add an edit page later):
 
 ```js
 const {h1, div, p} = React.DOM;
@@ -91,11 +92,9 @@ const UserComponent = React.createFactory(React.createClass({
   }
 }));
 
-app.addPages({
-  viewUser: {
-    render(data) {
-      return UserComponent(data);
-    }
+app.addPage('viewUser', '/users/:id', {
+  render(data) {
+    return UserComponent(data);
   }
 });
 ```
@@ -119,19 +118,17 @@ const UserComponent = React.createFactory(React.createClass({
   }
 }));
 
-app.addPages({
-  viewUser: {
-    prepareData({location: {params: {id}}}) {
-      const name = id[0].toUpperCase() + id.slice(1);
-      return {
-        name,
-        title: `User: ${name}`
-      };
-    },
+app.addPage('viewUser', '/users/:id', {
+  prepareData({location: {params: {id}}}) {
+    const name = id[0].toUpperCase() + id.slice(1);
+    return {
+      name,
+      title: `User: ${name}`
+    };
+  },
 
-    render(data) {
-      return UserComponent(data);
-    }
+  render(data) {
+    return UserComponent(data);
   }
 });
 ```
@@ -155,26 +152,24 @@ const UserComponent = React.createFactory(React.createClass({
   }
 }));
 
-app.addPages({
-  viewUser: {
-    getData({location: {params: {id}}, state}) {
-      return {
-        id,
-        name: id[0].toUpperCase() + id.slice(1),
-        info: 'Some old user'
-      };
-    },
+app.addPage('viewUser', '/users/:id', {
+  getData({location: {params: {id}}, state}) {
+    return {
+      id,
+      name: id[0].toUpperCase() + id.slice(1),
+      info: 'Some old user'
+    };
+  },
 
-    prepareData({pageData: user, location}) {
-      return {
-        name: user.name,
-        title: `User: ${user.name}!`,
-        info: user.info
-      };
-    },
+  prepareData({pageData: user, location}) {
+    return {
+      name: user.name,
+      title: `User: ${user.name}!`,
+      info: user.info
+    };
+  },
 
-    render: UserComponent
-  }
+  render: UserComponent
 });
 ```
 
@@ -187,12 +182,11 @@ Initial state can be provided when creating the app:
 
 ```js
 const app = createApp(document.getElementById('app'), {
-  routes: [
-    ['viewUser', '/users/:id'],
-    ['editUser', '/users/:id/edit']
-  ],
+  state: {currentUser: 'Christian'},
 
-  state: {currentUser: 'Christian'}
+  render(component, data) {
+    react.render(component(data), document.getElementById('app'));
+  }
 });
 ```
 
@@ -254,8 +248,8 @@ a({
 }, 'Edit page')
 ```
 
-Clicking the link will produce a 404, because we haven't implemented the
-`editUser` page yet, here's a stub:
+This will currently fail, because we haven't implemented the `editUser` page
+yet, here's a stub:
 
 ```js
 const EditUserComponent = React.createFactory(React.createClass({
@@ -265,14 +259,8 @@ const EditUserComponent = React.createFactory(React.createClass({
   }
 }));
 
-app.addPages({
-  viewUser: {
-    // ...
-  },
-
-  editUser: {
-    render: EditUserComponent
-  }
+app.addPage('editUser', '/users/:id/edit', {
+  render: EditUserComponent
 });
 ```
 
@@ -313,15 +301,14 @@ import assign from 'lodash/object/assign';
 import pick from 'lodash/object/pick';
 
 const app = createApp(document.getElementById('app'), {
-  routes: [
-    ['viewUser', '/users/:id'],
-    ['editUser', '/users/:id/edit']
-  ],
-
   state: {currentUser: 'Christian'},
 
   finalizeData(data, location, state) {
     return assign(data, pick(state, 'flash'));
+  },
+
+  render(component, data) {
+    react.render(component(data), document.getElementById('app'));
   }
 });
 ```
@@ -367,6 +354,10 @@ const EditUserComponent = React.createFactory(React.createClass({
 }));
 ```
 
+You might want the flash to disappear automatically after some time. To do so,
+replace `updateState(state)` with `flashState(state, ms)`, which will undo the
+state changes after `ms` milliseconds.
+
 That about sums up the important bits about Spasm. Below you will find complete
 API docs for all the details.
 
@@ -375,24 +366,9 @@ The demo can be found in the `demo` directory, and can be run with `npm start`
 
 ## API docs
 
-### `const app = createApp(el, {routes, state, finalizeData})`
+### `const app = createApp({state, finalizeData, render})`
 
 Creates a new application instance.
-
-#### `el`
-
-A DOM element to render the app into.
-
-#### `routes`
-
-An array of routes. A route is a "tuple"/a two-element array where the first
-element is the name of the page the route matches, and the second element is the
-URL template:
-
-```js
-[['viewThing', '/things/:id'],
- ['editThing', '/things/:id/edit']]
-```
 
 #### `state`
 
@@ -407,6 +383,12 @@ the result of the router's parsing, see below. `state` is the client-side state.
 The object returned from this function will be passed to the page's `render`
 function.
 
+#### render(component, data)
+
+A function that renders the app given the current state. It is passed the
+current page's `render` function (which, when using React, should be a React
+component factory), and the prepared data.
+
 ### `app.loadURL(url[, state])`
 
 Use the router to resolve the page for this URL, fetch its data, prepare it, and
@@ -416,24 +398,24 @@ render. Optionally update client-side state as well.
 
 Like `loadURL`, but also push the `url` to the browser.
 
-### `app.triggerAction(action)`
+### `app.triggerAction(action[, arg1, arg2])`
 
 Triggers an action. If trying to trigger an action that has no handlers, this
-will throw an exception. The action is a tuple/two-element array, where the
-first element is the name of the action, and the second element is the action
-argument.
+will throw an exception. The action is an array, where the first element is the
+name of the action, and the remaining elements will be passed as arguments
+to the action. You can also pass additional arguments at call time.
 
-The action will be called with the action argument as its first argument, and
-the current data as the second argument, e.g.:
+The action will be called with the action arguments, call-time arguments (if
+any), and the current data as the last argument, e.g.:
 
 ```js
-app.addAction('test', (actionArgs, {location, pageData, state}) => {
+app.addAction('test', (actionArg1, actionArg2, callTimeArg1, {location, pageData, state}) => {
   // ...
 });
 
 // ...
 
-app.triggerAction(['test', {action: 'args'}]);
+app.triggerAction(['test', {action: 'args'}, 42], 13);
 ```
 
 ### `app.getURL(pageName, params)`
@@ -448,10 +430,8 @@ modify `query` in `location` and have it reflected in the URL returned from
 `getCurrentURL`.
 
 ```js
-app.action('addQueryParams', (params, {location}) => {
-  // Merge the new params into the current params
-  assign(location.params, params);
-  app.gotoURL(app.getCurrentURL());
+app.action('updateQueryParams', (params, {location}) => {
+  app.updateQueryParams(params);
 });
 ```
 
@@ -491,11 +471,17 @@ then trigger the action.
 React.DOM.a({onClick: app.performAction(['gotoURL', '/'])}, 'Home');
 ```
 
-### `app.addPages(pages)`
+### `app.addPage(pageName, route, {getData, prepareData, render})`
 
-Add page definitions. `pages` should be an object where the name of the page is
-the property name, and the page object is the value. See below for details on
-page objects.
+Add a page definition.
+
+#### `pageName`
+
+A string name for the page. Used with routing.
+
+#### `route`
+
+The URL template that matches this page.
 
 ### `app.start()`
 
