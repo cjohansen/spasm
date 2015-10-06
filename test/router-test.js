@@ -1,3 +1,4 @@
+/*global describe, beforeEach, it */
 import {createRoutes, getPage, getURL, toURLString} from '../src/router';
 import {assert, refute} from './test-helper';
 

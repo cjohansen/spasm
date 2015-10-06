@@ -84,7 +84,7 @@ export function createApp({render, state, finalizeData}) {
 
   function refresh(state = {}) {
     updateState(state);
-    renderPage(currentPage);
+    return renderPage(currentPage);
   }
 
   function getCurrentURL() {
@@ -117,8 +117,10 @@ export function createApp({render, state, finalizeData}) {
 
     performAction(action) {
       return function (e) {
-        e.preventDefault();
-        triggerAction(action, e.nativeEvent);
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        }
+        triggerAction(action, e && e.nativeEvent || e);
       };
     },
 
@@ -144,9 +146,9 @@ export function createApp({render, state, finalizeData}) {
       if (!currentPage) {
         throw new Error('Cannot update query params before a page is loaded');
       }
-      Object.keys(params).forEach(k => currentData.location.params[k] = params[k]);
+      Object.keys(params).forEach(k => currentData.location.query[k] = params[k]);
       history.pushState({}, '', getCurrentURL());
-      refresh();
+      return refresh();
     },
 
     updateState: updateStateAndRender,

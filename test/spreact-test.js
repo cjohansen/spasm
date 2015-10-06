@@ -1,3 +1,4 @@
+/*global describe, beforeEach, it */
 import {createApp} from '../src/spreact';
 import {assert, refute, sinon} from './test-helper';
 
@@ -139,6 +140,155 @@ describe('Spreact', () => {
       return app.loadURL('/zorg').
         then(() => {
           assert.calledOnceWith(render, notFound.render);
+        });
+    });
+  });
+
+  describe('triggerAction', () => {
+    it('does nothing if triggering no action', () => {
+      refute.defined(app.triggerAction());
+    });
+
+    it('fails if triggering action with no handlers', () => {
+      assert.exception(() => {
+        app.triggerAction(['someAction']);
+      });
+    });
+
+    it('calls action handler', () => {
+      const doIt = sinon.spy();
+      app.addAction('doIt', doIt);
+
+      app.triggerAction(['doIt']);
+
+      assert.calledOnce(doIt);
+    });
+
+    it('calls action handler with action arguments', () => {
+      const doIt = sinon.spy();
+      app.addAction('doIt', doIt);
+
+      app.triggerAction(['doIt', 1, 2, 3]);
+
+      assert.calledOnceWith(doIt, 1, 2, 3);
+    });
+
+    it('calls action handler with call-time arguments', () => {
+      const doIt = sinon.spy();
+      app.addAction('doIt', doIt);
+
+      app.triggerAction(['doIt', 1, 2, 3], 4, 5);
+
+      assert.calledOnceWith(doIt, 1, 2, 3, 4, 5);
+    });
+
+    it('returns promise that yields all action results', () => {
+      app.addAction('doIt', sinon.stub().returns(42));
+      app.addAction('doIt', sinon.stub().returns(13));
+
+      return app.triggerAction(['doIt']).
+        then(v => assert.equals(v, [42, 13]));
+    });
+
+    it('waits for all action results', () => {
+      let resolve;
+      const result = new Promise((res, reject) => resolve = res);
+      app.addAction('doIt', sinon.stub().returns(result));
+
+      setTimeout(() => resolve(42), 0);
+
+      return app.triggerAction(['doIt']).
+        then(v => assert.equals(v, [42]));
+    });
+  });
+
+  describe('refresh', () => {
+    it('gets, prepares and renders data from current page', () => {
+      return app.loadURL('/users/someone').
+        then(() => app.refresh()).
+        then(() => {
+          assert.calledTwice(page.getData);
+          assert.calledTwice(page.prepareData);
+          assert.calledTwice(render);
+        });
+    });
+
+    it('accepts custom state', () => {
+      return app.loadURL('/users/someone', {more: 'states'}).
+        then(() => app.refresh()).
+        then(() => assert.equals(page.getData.getCall(0).args[0].state, {
+          some: 'state',
+          more: 'states'
+        }));
+    });
+  });
+
+  describe('getCurrentURL', () => {
+    it('returns full URL for current location', () => {
+      return app.loadURL('/users/someone', {more: 'states'}).
+        then(() => app.refresh()).
+        then(() => assert.equals(app.getCurrentURL(), '/users/someone'));
+    });
+  });
+
+  describe('getURL', () => {
+    it('resolves page URL with router', () => {
+      assert.equals(app.getURL('viewUser', {id: 12}), '/users/12');
+    });
+  });
+
+  describe('performAction', () => {
+    it('creates event handler that triggers action', () => {
+      const event = {preventDefault: sinon.spy()};
+      const doIt = sinon.spy();
+      app.addAction('doIt', doIt);
+
+      app.performAction(['doIt', 42])(event);
+
+      assert.calledOnceWith(doIt, 42);
+      assert.calledOnce(event.preventDefault);
+    });
+
+    it('does not fail without event object', () => {
+      const doIt = sinon.spy();
+      app.addAction('doIt', doIt);
+
+      app.performAction(['doIt'])();
+
+      assert.calledOnce(doIt);
+    });
+
+    it('passes nativeEvent to action', () => {
+      const nativeEvent = {};
+      const doIt = sinon.spy();
+      app.addAction('doIt', doIt);
+
+      app.performAction(['doIt'])({nativeEvent});
+
+      assert.same(doIt.getCall(0).args[0], nativeEvent);
+    });
+  });
+
+  describe('updateQueryParams', () => {
+    it('adds params to the location', () => {
+      return app.loadURL('/users/42').
+        then(() => app.updateQueryParams({filter: 'everything'})).
+        then(() => {
+          assert.equals(app.getCurrentURL(), '/users/42?filter=everything');
+          const arg = page.prepareData.getCall(0).args[0];
+          assert.equals(arg.location.query, {filter: 'everything'});
+        });
+    });
+  });
+
+  describe('updateState', () => {
+    it('updates the state and re-renders', () => {
+      return app.loadURL('/users/42').
+        then(() => app.updateState({user: 'Someone'})).
+        then(() => {
+          const arg = page.prepareData.getCall(0).args[0];
+          assert.equals(arg.state, {some: 'state', user: 'Someone'});
+          assert.calledTwice(render);
         });
     });
   });
