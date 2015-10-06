@@ -2,17 +2,17 @@
   "name": "spreact",
   "version": "0.14.1",
   "description": "'Just enough structure' for single page web apps with React",
-  "main": "spreact.js",
+  "main": "src/spreact.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "start": "nodemon demo/index.js",
-    "build": "browserify -s spreact -t babelify -t uglifyify -p browserify-derequire -o spreact.js src/spreact.js",
+    "build": "browserify -s spreact -o spreact.js src/spreact.js",
     "postbuild": "uglify -s spreact.js -o spreact.js",
     "prepublish": "npm run build",
-    "test": "mochify --transform babelify test/*.js test/**/*.js",
-    "autotest": "mochify --transform babelify --watch test/*.js test/**/*.js"
+    "test": "mochify test/*.js test/**/*.js",
+    "autotest": "mochify --watch test/*.js test/**/*.js"
   },
   "keywords": [
     "react",
@@ -25,18 +25,28 @@
     "react": "~0.13.3"
   },
   "devDependencies": {
+    "babel-runtime": "^5.8.25",
     "babelify": "~6.3.0",
     "browserify": "^11.1.0",
     "browserify-derequire": "^0.9.4",
     "browserify-middleware": "~7.0.0",
     "express": "~4.13.3",
     "jasmine-core": "^2.3.4",
-    "nodemon": "~1.4.1",
     "mochify": "^2.13.0",
+    "nodemon": "~1.4.1",
     "referee": "^1.1.1",
     "referee-sinon": "^1.0.2",
     "sinon": "^1.17.0",
-    "uglifyify": "^3.0.1",
-    "uglify": "~0.1.5"
+    "uglify": "~0.1.5",
+    "uglifyify": "^3.0.1"
+  },
+  "browserify": {
+    "transform": [
+      ["babelify", {"optional": "runtime"}],
+      "uglifyify"
+    ],
+    "plugin": [
+      "browserify-derequire"
+    ]
   }
 }
