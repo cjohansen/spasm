@@ -1,8 +1,18 @@
 import {createRoute, getPage, getURL, toURLString} from './router';
 import {EventEmitter} from 'events';
+import {createAtom} from 'js-atom';
+
+const identity = v => v;
+
+const deref = data => ({
+  pageData: data.pageData,
+  location: data.location,
+  state: data.state.deref()
+});
 
 function getData(page, currentData) {
-  const res = page.getData && page.getData(currentData);
+  const res = page.getData && page.getData(deref(currentData));
+
   if (res && res.then) {
     return res;
   } else {
@@ -10,23 +20,21 @@ function getData(page, currentData) {
   }
 }
 
-function prep(page, data) {
-  return page.prepareData ? page.prepareData(data) : data;
-}
+const prep = (page, data) => (page.prepareData || identity)(data);
 
 export function createApp({render, state, finalizeData}) {
   const events = new EventEmitter();
   const routes = [];
   const bus = new EventEmitter();
   const pages = {};
-  let currentData = {state: state || {}}, currentPage;
+  let currentData = {state: createAtom(state || {})}, currentPage;
   finalizeData = finalizeData || (d => d);
 
   function renderApp() {
     const data = finalizeData(
-      prep(currentPage, currentData),
+      prep(currentPage, deref(currentData)),
       currentData.location,
-      currentData.state
+      currentData.state.deref()
     );
     if (data.title) {
       document.title = data.title;
@@ -47,18 +55,19 @@ export function createApp({render, state, finalizeData}) {
 
   function updateState(state) {
     if (typeof state === 'function') {
-      state = state(currentData.state);
+      state = state(currentData.state.deref());
     }
 
-    Object.keys(state).forEach(k => {
+    currentData.state.swap(currentState => Object.keys(state).reduce((res, k) => {
       if (state[k] === null) {
-        delete currentData.state[k];
+        delete res[k];
       } else {
-        currentData.state[k] = state[k];
+        res[k] = state[k];
       }
-    });
+      return res;
+    }, currentState));
 
-    events.emit('updateState', currentData.state);
+    events.emit('updateState', currentData.state.deref());
   }
 
   function loadURL(url, state = {}) {

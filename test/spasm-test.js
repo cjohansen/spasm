@@ -118,9 +118,7 @@ describe('Spasm', () => {
       finalizeData.returns({id: 42});
 
       return app.loadURL('/users/42').
-        then(() => {
-          assert.calledOnceWith(render, page.render, {id: 42});
-        });
+        then(() => assert.calledOnceWith(render, page.render, {id: 42}));
     });
 
     it('passes custom state', () => {
