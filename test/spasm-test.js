@@ -281,6 +281,16 @@ describe('Spasm', () => {
     });
   });
 
+  describe('clearQueryParams', () => {
+    it('removes all query params', () => {
+      return app.loadURL('/users/42?a=42&b=13').
+        then(() => app.clearQueryParams()).
+        then(() => {
+          assert.equals(app.getCurrentURL(), '/users/42');
+        });
+    });
+  });
+
   describe('updateState', () => {
     it('updates the state and re-renders', () => {
       return app.loadURL('/users/42').

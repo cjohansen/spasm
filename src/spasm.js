@@ -98,6 +98,15 @@ export function createApp({render, state, finalizeData}) {
     }
   }
 
+  function updateQueryParams(params) {
+    if (!currentPage) {
+      throw new Error('Cannot update query params before a page is loaded');
+    }
+    currentData.location.query = params;
+    history.pushState({}, '', getCurrentURL());
+    return refresh();
+  }
+
   const flashSchedule = {};
 
   return {
@@ -145,12 +154,14 @@ export function createApp({render, state, finalizeData}) {
     },
 
     updateQueryParams(params) {
-      if (!currentPage) {
-        throw new Error('Cannot update query params before a page is loaded');
-      }
-      Object.keys(params).forEach(k => currentData.location.query[k] = params[k]);
-      history.pushState({}, '', getCurrentURL());
-      return refresh();
+      return updateQueryParams(Object.keys(params).reduce((newParams, key) => {
+        newParams[key] = params[key];
+        return newParams;
+      }, currentData.location.query));
+    },
+
+    clearQueryParams() {
+      return updateQueryParams({});
     },
 
     updateState: updateStateAndRender,
