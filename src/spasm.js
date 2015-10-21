@@ -125,6 +125,7 @@ export function createApp({render, state, finalizeData}) {
     getCurrentURL,
 
     on: events.on.bind(events),
+    emit: events.emit.bind(events),
     off: events.removeListener.bind(events),
 
     getURL(...args) {
