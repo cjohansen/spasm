@@ -133,7 +133,7 @@ export function createApp({render, state, finalizeData}) {
     },
 
     addAction(event, handler) {
-      bus.on(event, (...data) => handler(...data, currentData));
+      bus.on(event, (...data) => handler(...data, deref(currentData)));
     },
 
     performAction(action) {
