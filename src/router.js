@@ -78,7 +78,7 @@ export function match({regexp, page, paramNames}, url) {
     port: Number(port || 80),
     scheme: scheme || 'http',
     params: mapify(vals.slice(1).map((v, idx) => [paramNames[idx], v])),
-    query: mapify(query && query.split('&').map(kv => kv.split('=')))
+    query: mapify(query && query.split('&').map(kv => kv.split('=')) || [])
   };
 }
 

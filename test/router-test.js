@@ -68,6 +68,11 @@ describe('Router', () => {
       const match = getPage(routes, '/lists/12?something=2&dude=other');
       assert.equals(match.query, {something: '2', dude: 'other'});
     });
+
+    it('parses empty query string', () => {
+      const match = getPage(routes, '/lists/12?');
+      assert.equals(match.query, {});
+    });
   });
 
   describe('getURL', () => {
