@@ -100,11 +100,15 @@ export function createApp({render, state, finalizeData}) {
     return toURLString(currentData.location);
   }
 
-  function updateStateAndRender(state) {
-    updateState(state);
+  function rerender() {
     if (currentPage) {
       renderApp();
     }
+  }
+
+  function updateStateAndRender(state) {
+    updateState(state);
+    rerender();
   }
 
   function updateQueryParams(params) {
@@ -123,6 +127,7 @@ export function createApp({render, state, finalizeData}) {
     triggerAction,
     refresh,
     getCurrentURL,
+    rerender,
 
     on: events.on.bind(events),
     emit: events.emit.bind(events),
