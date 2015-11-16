@@ -102,7 +102,7 @@ export function createApp({render, state, finalizeData}) {
 
   function rerender() {
     if (currentPage) {
-      renderApp();
+      return renderApp();
     }
   }
 
