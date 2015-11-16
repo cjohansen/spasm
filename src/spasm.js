@@ -20,7 +20,7 @@ function getData(page, currentData) {
   }
 }
 
-const prep = (page, data) => (page.prepareData || identity)(data);
+const prep = (page, data) => (page.prepareData || (({pageData}) => pageData))(data);
 
 export function createApp({render, state, finalizeData}) {
   const events = new EventEmitter();

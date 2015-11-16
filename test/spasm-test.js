@@ -121,6 +121,15 @@ describe('Spasm', () => {
         then(() => assert.calledOnceWith(render, page.render, {id: 42}));
     });
 
+    it('passes page data directly to render if prepareData is missing', () => {
+      app = createApp({render, state});
+      page = {getData: sinon.stub().returns({id: 42}), render: sinon.spy()};
+      app.addPage('viewUser', '/users/:id', page);
+
+      return app.loadURL('/users/42').
+        then(() => assert.calledOnceWith(render, page.render, {id: 42}));
+    });
+
     it('passes custom state', () => {
       return app.loadURL('/users/42', {more: 'state'}).
         then(() => {

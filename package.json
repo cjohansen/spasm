@@ -11,8 +11,8 @@
     "build": "browserify -s spasm -o spasm.js src/spasm.js",
     "postbuild": "uglify -s spasm.js -o spasm.js",
     "prepublish": "npm run build",
-    "test": "mochify test/*.js test/**/*.js",
-    "autotest": "mochify --watch test/*.js test/**/*.js"
+    "test": "mochify  test/*.js test/**/*.js",
+    "autotest": "npm run test -- --watch"
   },
   "keywords": [
     "react",
@@ -29,6 +29,7 @@
     "uglifyify": "^3.0.1"
   },
   "devDependencies": {
+    "babel-polyfill": "^6.1.19",
     "browserify": "^11.1.0",
     "browserify-derequire": "^0.9.4",
     "browserify-middleware": "~7.0.0",
