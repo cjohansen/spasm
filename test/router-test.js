@@ -95,6 +95,11 @@ describe('Router', () => {
         scheme: 'https'
       }), 'https://nrk.no:666/lists/12');
     });
+
+    it('generates URL with query parameters', () => {
+      const url = getURL(routes, 'viewList', {id: 12}, {filter: 'blergh'});
+      assert.equals(url, '/lists/12?filter=blergh');
+    });
   });
 
   describe('toURLString', () => {

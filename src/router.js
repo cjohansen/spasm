@@ -25,15 +25,18 @@ function qualifyURL(path, {host, port, scheme}) {
   return `${scheme || 'http'}://${host.replace(/\/$/, '')}${path}`;
 }
 
-function formatURL(route, params = {}) {
+function formatURL(route, params = {}, query = {}) {
   if (!route) { return null; }
-  return qualifyURL(route.paramNames.reduce((url, param) => {
-    return url.replace(':' + param, params[param]);
-  }, route.route), params);
+  return toURLString({
+    path: qualifyURL(route.paramNames.reduce((url, param) => {
+      return url.replace(':' + param, params[param]);
+    }, route.route), params),
+    query
+  });
 }
 
-export function getURL(routes, page, params) {
-  return formatURL(find(r => r.page === page, routes), params);
+export function getURL(routes, page, params, query) {
+  return formatURL(find(r => r.page === page, routes), params, query);
 }
 
 function val(v) {
