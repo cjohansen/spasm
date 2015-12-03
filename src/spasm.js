@@ -193,7 +193,8 @@ export function createApp({render, state, finalizeData, logger}) {
       return loadURL(url, state);
     },
 
-    updateQueryParams(params) {
+    updateQueryParams(params, state = {}) {
+      updateState(state);
       return updateQueryParams(Object.keys(params).reduce((newParams, key) => {
         newParams[key] = params[key];
         return newParams;
@@ -221,6 +222,10 @@ export function createApp({render, state, finalizeData, logger}) {
           return state;
         }, {}));
       }, ttl);
+    },
+
+    getState() {
+      return currentData.state.deref();
     }
   };
 }

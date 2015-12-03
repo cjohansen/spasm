@@ -314,6 +314,12 @@ describe('Spasm', () => {
           assert.equals(arg.location.query, {filter: 'everything'});
         });
     });
+
+    it('adds additional state', () => {
+      return app.loadURL('/users/42').
+        then(() => app.updateQueryParams({filter: 'everything'}, {more: 'state'})).
+        then(() => assert.equals(app.getState(), {some: 'state', more: 'state'}));
+    });
   });
 
   describe('clearQueryParams', () => {
