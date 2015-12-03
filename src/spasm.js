@@ -10,35 +10,59 @@ const deref = data => ({
   state: data.state.deref()
 });
 
-function getData(page, currentData) {
-  const res = page.getData && page.getData(deref(currentData));
-
-  if (res && res.then) {
-    return res;
-  } else {
-    return new Promise((resolve, reject) => resolve(res));
-  }
-}
-
-const prep = (page, data) => (page.prepareData || (({pageData}) => pageData))(data);
-
-export function createApp({render, state, finalizeData}) {
+export function createApp({render, state, finalizeData, logger}) {
   const events = new EventEmitter();
   const routes = [];
   const bus = new EventEmitter();
   const pages = {};
   let currentData = {state: createAtom(state || {})}, currentPage;
-  finalizeData = finalizeData || (d => d);
+
+  const log = typeof logger === 'undefined' ? identity : function (...args) {
+    return logger.log(...args);
+  };
+
+  function getData(page, currentData) {
+    const dereffed = deref(currentData);
+    log('getData', dereffed);
+    const res = page.getData && page.getData(dereffed);
+
+    if (res && res.then) {
+      return res;
+    } else {
+      return new Promise((resolve, reject) => resolve(res));
+    }
+  }
+
+  function prep(page, data) {
+    if (page.prepareData) {
+      log('prepareData', data);
+      return page.prepareData(data);
+    }
+
+    log('No prepareData, using raw page data', data.pageData);
+    return data.pageData;
+  }
+
+  function finalize(data, location, state) {
+    if (finalizeData) {
+      log('finalizeData', data, location, state);
+      return finalizeData(data, location, state);
+    }
+
+    return data;
+  }
 
   function renderApp() {
-    const data = finalizeData(
+    const data = finalize(
       prep(currentPage, deref(currentData)),
       currentData.location,
       currentData.state.deref()
     );
     if (data.title) {
+      log('set page title', data.title);
       document.title = data.title;
     }
+    log('render', data);
     render(currentPage.render, data);
     return data;
   }
@@ -73,6 +97,7 @@ export function createApp({render, state, finalizeData}) {
   function loadURL(url, state = {}) {
     updateState(state);
     const res = getPage(routes, url);
+    log('loadURL', url, res.page, res.params, res.query);
     currentData.location = res;
     return renderPage(pages[res.page] || pages[404]);
   }

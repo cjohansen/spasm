@@ -151,6 +151,34 @@ describe('Spasm', () => {
     });
   });
 
+  describe('debug logging', () => {
+    let logger;
+
+    beforeEach(() => {
+      logger = {log: sinon.spy()};
+      app = createApp({render, finalizeData, state, logger});
+      page = {
+        getData: sinon.stub(),
+        prepareData: sinon.stub(),
+        render: sinon.stub()
+      };
+      app.addPage('viewUser', '/users/:id', page);
+    });
+
+    it('logs profusely', () => {
+      page.getData.returns({data: 13});
+      page.prepareData.returns({embellished: {data: 13}});
+
+      return app.loadURL('/users/42').
+        then(() => {
+          assert.equals(logger.log.args[0], ['loadURL', '/users/42', 'viewUser', {id: 42}, {}]);
+          assert.match(logger.log.args[1], ['getData', {location: {}, state: {some: 'state'}}]);
+          assert.match(logger.log.args[2], ['prepareData', {pageData: {data: 13}}]);
+          assert.match(logger.log.args[3], ['finalizeData', {embellished: {data: 13}}, {page: 'viewUser'}, {some: 'state'}]);
+        });
+    });
+  });
+
   describe('triggerAction', () => {
     it('does nothing if triggering no action', () => {
       refute.defined(app.triggerAction());
