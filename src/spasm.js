@@ -226,6 +226,10 @@ export function createApp({render, state, finalizeData, logger}) {
 
     getState() {
       return currentData.state.deref();
+    },
+
+    getLocation() {
+      return currentData.location;
     }
   };
 }
