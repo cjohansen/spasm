@@ -133,7 +133,7 @@ export function createApp({render, state, finalizeData, logger}) {
 
   function updateStateAndRender(state) {
     updateState(state);
-    rerender();
+    return rerender();
   }
 
   function updateQueryParams(params) {
