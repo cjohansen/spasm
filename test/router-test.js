@@ -73,6 +73,13 @@ describe('Router', () => {
       const match = getPage(routes, '/lists/12?');
       assert.equals(match.query, {});
     });
+
+    it('URI decodes parameters', () => {
+      const match = getPage(routes, '/lists/d%C3%B8d?something=gj%C3%B8dsel');
+
+      assert.equals(match.params.id, 'død');
+      assert.equals(match.query.something, 'gjødsel');
+    });
   });
 
   describe('getURL', () => {

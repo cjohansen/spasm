@@ -46,9 +46,9 @@ function val(v) {
   return /^-?\d+(\.\d+)?$/.test(v.trim()) ? parseFloat(v) : v;
 }
 
-function mapify(pairs = []) {
+function paramify(pairs = []) {
   return pairs.reduce((m, [k, v]) => {
-    m[k] = v;
+    m[k] = decodeURIComponent(v);
     return m;
   }, {});
 }
@@ -80,8 +80,8 @@ export function match({regexp, page, paramNames}, url) {
     host,
     port: Number(port || 80),
     scheme: scheme || 'http',
-    params: mapify(vals.slice(1).map((v, idx) => [paramNames[idx], v])),
-    query: mapify(query && query.split('&').map(kv => kv.split('=')) || [])
+    params: paramify(vals.slice(1).map((v, idx) => [paramNames[idx], v])),
+    query: paramify(query && query.split('&').map(kv => kv.split('=')) || [])
   };
 }
 
