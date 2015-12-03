@@ -47,7 +47,7 @@ describe('Router', () => {
         port: 80,
         scheme: 'http',
         query: {},
-        params: {id: '12'}
+        params: {id: 12}
       });
     });
 
@@ -60,13 +60,29 @@ describe('Router', () => {
         port: 6777,
         scheme: 'https',
         query: {},
-        params: {id: '12'}
+        params: {id: 12}
       });
+    });
+
+    it('parses number parameters as numbers', () => {
+      assert.same(getPage(routes, 'https://localhost:6777/lists/12').params.id, 12);
     });
 
     it('parses query string', () => {
       const match = getPage(routes, '/lists/12?something=2&dude=other');
-      assert.equals(match.query, {something: '2', dude: 'other'});
+      assert.equals(match.query, {something: 2, dude: 'other'});
+    });
+
+    it('parses query string numbers as numbers', () => {
+      const match = getPage(routes, '/lists/12?one=1&two=-2.34&three=4.3&four=-34');
+
+      assert.equals(match.query, {one: 1, two: -2.34, three: 4.3, four: -34});
+    });
+
+    it('does not parse query string number-like strings as numbers', () => {
+      const match = getPage(routes, '/lists/12?one=p1&two=-2.34x');
+
+      assert.equals(match.query, {one: 'p1', two: '-2.34x'});
     });
 
     it('parses empty query string', () => {

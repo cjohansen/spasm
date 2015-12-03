@@ -46,9 +46,19 @@ function val(v) {
   return /^-?\d+(\.\d+)?$/.test(v.trim()) ? parseFloat(v) : v;
 }
 
+function paramValue(v) {
+  if (/^-?\d+$/.test(v)) {
+    return parseInt(v, 10);
+  }
+  if (/^-?\d+\.\d+$/.test(v)) {
+    return parseFloat(v);
+  }
+  return v;
+}
+
 function paramify(pairs = []) {
   return pairs.reduce((m, [k, v]) => {
-    m[k] = decodeURIComponent(v);
+    m[k] = paramValue(decodeURIComponent(v));
     return m;
   }, {});
 }

@@ -31,7 +31,7 @@ describe('Spasm', () => {
             location: {
               host: undefined,
               page: 'viewUser',
-              params: {id: '42'},
+              params: {id: 42},
               path: '/users/42',
               port: 80,
               query: {},
@@ -103,7 +103,7 @@ describe('Spasm', () => {
             {id: 42},
             {host: undefined,
              page: 'viewUser',
-             params: {id: '42'},
+             params: {id: 42},
              path: '/users/42',
              port: 80,
              query: {},
