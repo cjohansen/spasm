@@ -167,6 +167,10 @@ export function createApp({render, state, finalizeData, logger}) {
     },
 
     performAction(action) {
+      if (!action) {
+        return null;
+      }
+
       return function (e) {
         if (e && e.preventDefault) {
           e.preventDefault();

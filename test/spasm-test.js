@@ -284,6 +284,10 @@ describe('Spasm', () => {
       assert.calledOnce(event.preventDefault);
     });
 
+    it('does not create event handler for non-existent action', () => {
+      assert.isNull(app.performAction(null));
+    });
+
     it('does not fail without event object', () => {
       const doIt = sinon.spy();
       app.addAction('doIt', doIt);
