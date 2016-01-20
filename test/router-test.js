@@ -90,6 +90,11 @@ describe('Router', () => {
       assert.equals(match.query, {});
     });
 
+    it('parses query string with multiple versions for same key as array param', () => {
+      const match = getPage(routes, '/lists/12?tag=one&tag=two');
+      assert.equals(match.query.tag, ['one', 'two']);
+    });
+
     it('URI decodes parameters', () => {
       const match = getPage(routes, '/lists/d%C3%B8d?something=gj%C3%B8dsel');
 
@@ -122,6 +127,11 @@ describe('Router', () => {
     it('generates URL with query parameters', () => {
       const url = getURL(routes, 'viewList', {id: 12}, {filter: 'blergh'});
       assert.equals(url, '/lists/12?filter=blergh');
+    });
+
+    it('generates URL with array query parameters', () => {
+      const url = getURL(routes, 'viewList', {id: 12}, {tag: ['one', 'two']});
+      assert.equals(url, '/lists/12?tag=one&tag=two');
     });
   });
 

@@ -58,7 +58,17 @@ function paramValue(v) {
 
 function paramify(pairs = []) {
   return pairs.reduce((m, [k, v]) => {
-    m[k] = paramValue(decodeURIComponent(v));
+    const val = paramValue(decodeURIComponent(v));
+
+    if (m[k]) {
+      if (!Array.isArray(m[k])) {
+        m[k] = [m[k]];
+      }
+      m[k].push(val);
+    } else {
+      m[k] = val;
+    }
+
     return m;
   }, {});
 }
@@ -71,7 +81,9 @@ export function toURLString({query, path}) {
     if (query[k] === true) {
       return k;
     }
-    return `${k}=${query[k]}`;
+    return (Array.isArray(query[k]) ? query[k] : [query[k]]).map(v => {
+      return `${k}=${v}`;
+    }).join('&');
   }).filter(p => p).join('&');
   return path + (queryString ? '?' + queryString : '');
 }
