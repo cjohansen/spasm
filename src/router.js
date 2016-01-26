@@ -92,7 +92,8 @@ const URL_RE = /(?:(?:(https?):)?\/\/([^:\/]+)(?::(\d+))?)?([^\?]*)(?:\?(.*))?/;
 
 function stripPrefix(path, prefix) {
   if (prefix) {
-    return path.replace(new RegExp(`^${prefix}`), '');
+    const stripped = path.replace(new RegExp(`^${prefix}`), '');
+    return stripped ? stripped : '/';
   } else {
     return path;
   }

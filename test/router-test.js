@@ -126,6 +126,15 @@ describe('Router', () => {
       assert.match(match, {page: 'index', prefix: '/something', params: {id: 42}});
     });
 
+    it('matches prefixed /', () => {
+      const match = getPage(
+        createRoutes([['index', '/']], {prefix: '/something'}),
+        '/something'
+      );
+
+      assert.match(match, {page: 'index', prefix: '/something'});
+    });
+
     it('defaults prefix to empty string', () => {
       const match = getPage(createRoutes([['index', '/:id']]), '/42');
 
