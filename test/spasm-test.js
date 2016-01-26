@@ -28,7 +28,7 @@ describe('Spasm', () => {
       return app.loadURL('/users/42').
         then(() => {
           assert.calledOnceWith(page.getData);
-          assert.equals(page.getData.getCall(0).args, [{
+          assert.match(page.getData.getCall(0).args, [{
             location: {
               host: undefined,
               page: 'viewUser',
@@ -100,7 +100,7 @@ describe('Spasm', () => {
         then(() => {
           assert.calledOnce(finalizeData);
           const args = finalizeData.getCall(0).args;
-          assert.equals(args, [
+          assert.match(args, [
             {id: 42},
             {host: undefined,
              page: 'viewUser',
@@ -149,6 +149,16 @@ describe('Spasm', () => {
         then(() => {
           assert.calledOnceWith(render, notFound.render);
         });
+    });
+
+    it('prepares prefixed page', () => {
+      const page = {prepareData: sinon.spy()};
+      app.addPage('viewThing', '/things/:id', page, {prefix: '/myapp'});
+
+      return app.loadURL('/myapp/things/42').
+        then(() => assert.equals(page.prepareData.getCall(0).args[0].location.params, {
+          id: 42
+        }));
     });
   });
 

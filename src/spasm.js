@@ -179,8 +179,8 @@ export function createApp({render, state, finalizeData, logger}) {
       };
     },
 
-    addPage(name, route, page) {
-      routes.push(createRoute(name, route));
+    addPage(name, route, page, options = {}) {
+      routes.push(createRoute(name, route, options));
       pages[name] = page;
     },
 

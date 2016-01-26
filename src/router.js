@@ -15,14 +15,14 @@ function find(pred, coll) {
   }
 }
 
-function qualifyURL(path, {host, port, scheme}) {
+function qualifyURL(path, {host, port, scheme, prefix}) {
   if (!host) {
     return path;
   }
   if (port) {
     host = host.replace(/(:.*)?$/, `:${port}`);
   }
-  return `${scheme || 'http'}://${host.replace(/\/$/, '')}${path}`;
+  return `${scheme || 'http'}://${host.replace(/\/$/, '')}${prefix || ''}${path}`;
 }
 
 function formatURL(route, params = {}, query = {}) {
@@ -90,9 +90,17 @@ export function toURLString({query, path}) {
 
 const URL_RE = /(?:(?:(https?):)?\/\/([^:\/]+)(?::(\d+))?)?([^\?]*)(?:\?(.*))?/;
 
-export function match({regexp, page, paramNames}, url) {
+function stripPrefix(path, prefix) {
+  if (prefix) {
+    return path.replace(new RegExp(`^${prefix}`), '');
+  } else {
+    return path;
+  }
+}
+
+export function match({regexp, page, paramNames, prefix}, url) {
   const [, scheme, host, port, path, query] = url.match(URL_RE);
-  const vals = path.match(regexp);
+  const vals = stripPrefix(path, prefix).match(regexp);
   if (!vals) { return null; }
 
   return {
@@ -100,6 +108,7 @@ export function match({regexp, page, paramNames}, url) {
     url,
     path,
     host,
+    prefix: prefix || '',
     port: Number(port || 80),
     scheme: scheme || 'http',
     params: paramify(vals.slice(1).map((v, idx) => [paramNames[idx], v])),
@@ -111,18 +120,19 @@ export function getPage(routes, url) {
   return first(route => match(route, url), routes) || {params: {}};
 }
 
-export function createRoute(page, route) {
+export function createRoute(page, route, options = {}) {
   const paramNames = (route.match(/:[a-zA-Z0-9]+/g) || []).map(n => n.slice(1));
   return {
     page,
     paramNames,
     route,
-    regexp: new RegExp(paramNames.reduce((page, param) => {
+    prefix: options.prefix,
+    regexp: new RegExp('^' + paramNames.reduce((page, param) => {
       return page.replace(':' + param, '([^/?]+)');
     }, route) + '$')
   };
 }
 
-export function createRoutes(routes) {
-  return routes.map(([page, route]) => createRoute(page, route));
+export function createRoutes(routes, options) {
+  return routes.map(([page, route]) => createRoute(page, route, options || {}));
 }

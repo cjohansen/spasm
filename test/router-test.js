@@ -31,6 +31,15 @@ describe('Router', () => {
          paramNames: ['id', 'itemId', 'listItemCommentId']}
       ]);
     });
+
+    it('parses out prefix', () => {
+      const routes = createRoutes([['viewList', '/lists/:id']], {prefix: '/news'});
+
+      assert.match(routes[0], {
+        route: '/lists/:id',
+        prefix: '/news'
+      });
+    });
   });
 
   describe('getPage', () => {
@@ -39,7 +48,7 @@ describe('Router', () => {
     });
 
     it('returns matching route', () => {
-      assert.equals(getPage(routes, '/lists/12'), {
+      assert.match(getPage(routes, '/lists/12'), {
         page: 'viewList',
         url: '/lists/12',
         path: '/lists/12',
@@ -52,7 +61,7 @@ describe('Router', () => {
     });
 
     it('returns matching route with host and port', () => {
-      assert.equals(getPage(routes, 'https://localhost:6777/lists/12'), {
+      assert.match(getPage(routes, 'https://localhost:6777/lists/12'), {
         page: 'viewList',
         url: 'https://localhost:6777/lists/12',
         path: '/lists/12',
@@ -101,6 +110,27 @@ describe('Router', () => {
       assert.equals(match.params.id, 'død');
       assert.equals(match.query.something, 'gjødsel');
     });
+
+    it('does not match un-prefixed route to prefixed path', () => {
+      const match = getPage(createRoutes([['index', '/:id']]), '/something/42');
+
+      assert.equals(match, {params: {}});
+    });
+
+    it('parses out route prefix', () => {
+      const match = getPage(
+        createRoutes([['index', '/:id']], {prefix: '/something'}),
+        '/something/42'
+      );
+
+      assert.match(match, {page: 'index', prefix: '/something', params: {id: 42}});
+    });
+
+    it('defaults prefix to empty string', () => {
+      const match = getPage(createRoutes([['index', '/:id']]), '/42');
+
+      assert.match(match, {prefix: ''});
+    });
   });
 
   describe('getURL', () => {
@@ -122,6 +152,16 @@ describe('Router', () => {
         port: 666,
         scheme: 'https'
       }), 'https://nrk.no:666/lists/12');
+    });
+
+    it('generates fully qualified URL with port and prefix', () => {
+      assert.equals(getURL(routes, 'viewList', {
+        id: 12,
+        host: 'nrk.no',
+        port: 666,
+        scheme: 'https',
+        prefix: '/something'
+      }), 'https://nrk.no:666/something/lists/12');
     });
 
     it('generates URL with query parameters', () => {

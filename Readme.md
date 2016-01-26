@@ -471,9 +471,10 @@ then trigger the action.
 React.DOM.a({onClick: app.performAction(['gotoURL', '/'])}, 'Home');
 ```
 
-### `app.addPage(pageName, route, {getData, prepareData, render})`
+### `app.addPage(pageName, route, {getData, prepareData, render}, {prefix})`
 
-Add a page definition.
+Add a page definition. The `prefix` can be used for static URL prefixes that you
+don't want to be part of the URLs.
 
 #### `pageName`
 
@@ -512,10 +513,12 @@ for the page title (e.g. `document.title`).
 The router is not exposed directly, although it is completely possible to use it
 on its own if desired.
 
-### `const routingTable = createRoutes(routes)`
+### `const routingTable = createRoutes(routes[, {prefix}])`
 
 Creates a routing table. `routes` is an array of routes, where each route is a
-tuple of `[pageName, urlTemplate]`.
+tuple of `[pageName, urlTemplate]`. The `prefix` can be used to ignore static
+URL prefixes, e.g. to target a URL like `/my/app/news/23` with the route
+`/news/:id` and the prefix `/my/app`.
 
 ### `const url = toURLString({path, query})`
 
