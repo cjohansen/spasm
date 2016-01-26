@@ -20,6 +20,7 @@ describe('Spasm', () => {
       render: sinon.stub()
     };
     app.addPage('viewUser', '/users/:id', page);
+    global.history = {pushState: sinon.spy()};
   });
 
   describe('loadURL', () => {

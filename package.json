@@ -11,7 +11,7 @@
     "build": "browserify -s spasm -o spasm.js src/spasm.js",
     "postbuild": "uglify -s spasm.js -o spasm.js",
     "prepublish": "npm run build",
-    "test": "mochify  test/*.js test/**/*.js",
+    "test": "mocha -R progress --require babel-register --recursive test",
     "autotest": "npm run test -- --watch"
   },
   "keywords": [
@@ -30,13 +30,14 @@
   },
   "devDependencies": {
     "babel-polyfill": "^6.1.19",
+    "babel-register": "^6.4.3",
     "browserify": "^11.1.0",
     "browserify-derequire": "^0.9.4",
     "browserify-middleware": "~7.0.0",
     "express": "~4.13.3",
     "formatio": "^1.1.2",
     "jasmine-core": "^2.3.4",
-    "mochify": "^2.13.0",
+    "mocha": "^2.3.4",
     "nodemon": "~1.4.1",
     "referee": "^1.1.1",
     "referee-sinon": "^1.0.2",
