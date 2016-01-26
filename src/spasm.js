@@ -10,11 +10,12 @@ const deref = data => ({
   state: data.state.deref()
 });
 
-export function createApp({render, state, finalizeData, logger}) {
+export function createApp({render, state, finalizeData, logger, prefix}) {
   const events = new EventEmitter();
   const routes = [];
   const bus = new EventEmitter();
   const pages = {};
+  prefix = prefix || '';
   let currentData = {state: createAtom(state || {})}, currentPage;
 
   const log = typeof logger === 'undefined' ? identity : function (...args) {
@@ -49,7 +50,7 @@ export function createApp({render, state, finalizeData, logger}) {
       return finalizeData(data, location, state);
     }
 
-    return data;
+    return data || {};
   }
 
   function renderApp() {
@@ -179,8 +180,8 @@ export function createApp({render, state, finalizeData, logger}) {
       };
     },
 
-    addPage(name, route, page, options = {}) {
-      routes.push(createRoute(name, route, options));
+    addPage(name, route, page) {
+      routes.push(createRoute(name, route, {prefix}));
       pages[name] = page;
     },
 
@@ -193,7 +194,7 @@ export function createApp({render, state, finalizeData, logger}) {
     },
 
     gotoURL(url, state = {}) {
-      history.pushState({}, '', url);
+      history.pushState({}, '', url.replace(new RegExp(`^(${prefix})?`), prefix));
       return loadURL(url, state);
     },
 

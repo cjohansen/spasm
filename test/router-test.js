@@ -164,12 +164,13 @@ describe('Router', () => {
     });
 
     it('generates fully qualified URL with port and prefix', () => {
+      const routes = createRoutes([['viewList', '/lists/:id']], {prefix: '/something'});
+
       assert.equals(getURL(routes, 'viewList', {
         id: 12,
         host: 'nrk.no',
         port: 666,
-        scheme: 'https',
-        prefix: '/something'
+        scheme: 'https'
       }), 'https://nrk.no:666/something/lists/12');
     });
 

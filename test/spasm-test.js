@@ -152,8 +152,9 @@ describe('Spasm', () => {
     });
 
     it('prepares prefixed page', () => {
+      const app = createApp({render, prefix: '/myapp'});
       const page = {prepareData: sinon.spy()};
-      app.addPage('viewThing', '/things/:id', page, {prefix: '/myapp'});
+      app.addPage('viewThing', '/things/:id', page);
 
       return app.loadURL('/myapp/things/42').
         then(() => assert.equals(page.prepareData.getCall(0).args[0].location.params, {
@@ -280,6 +281,57 @@ describe('Spasm', () => {
   describe('getURL', () => {
     it('resolves page URL with router', () => {
       assert.equals(app.getURL('viewUser', {id: 12}), '/users/12');
+    });
+
+    it('resolves prefixed page URL', () => {
+      const app = createApp({render, prefix: '/myapp'});
+      app.addPage('viewIndex', '/', {});
+
+      assert.equals(app.getURL('viewIndex', {}), '/myapp/');
+    });
+  });
+
+  describe('gotoURL', () => {
+    it('adds prefixes to browser URLs', () => {
+      const app = createApp({render, prefix: '/myapp'});
+      const page = {getData: sinon.stub().returns({})};
+      app.addPage('viewList', '/lists/:id', page);
+
+      app.gotoURL('/lists/42');
+
+      assert.calledOnce(global.history.pushState);
+      assert.equals(global.history.pushState.getCall(0).args[2], '/myapp/lists/42');
+      assert.match(page.getData.getCall(0).args[0].location, {
+        params: {id: 42}
+      });
+    });
+
+    it('does not duplicate incoming prefixes', () => {
+      const app = createApp({render, prefix: '/myapp'});
+      const page = {getData: sinon.stub().returns({})};
+      app.addPage('viewList', '/lists/:id', page);
+
+      app.gotoURL('/myapp/lists/42');
+
+      assert.calledOnce(global.history.pushState);
+      assert.equals(global.history.pushState.getCall(0).args[2], '/myapp/lists/42');
+      assert.match(page.getData.getCall(0).args[0].location, {
+        params: {id: 42}
+      });
+    });
+  });
+
+  describe('loadURL', () => {
+    it('ignores incoming prefixes', () => {
+      const app = createApp({render, prefix: '/myapp'});
+      const page = {getData: sinon.stub().returns({})};
+      app.addPage('viewList', '/lists/:id', page);
+
+      app.loadURL('/myapp/lists/42');
+
+      assert.match(page.getData.getCall(0).args[0].location, {
+        params: {id: 42}
+      });
     });
   });
 

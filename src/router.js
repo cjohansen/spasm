@@ -15,14 +15,18 @@ function find(pred, coll) {
   }
 }
 
-function qualifyURL(path, {host, port, scheme, prefix}) {
+function qualifyURL(path, route, {host, port, scheme}) {
+  path = `${route.prefix || ''}${path}`;
+
   if (!host) {
     return path;
   }
+
   if (port) {
     host = host.replace(/(:.*)?$/, `:${port}`);
   }
-  return `${scheme || 'http'}://${host.replace(/\/$/, '')}${prefix || ''}${path}`;
+
+  return `${scheme || 'http'}://${host.replace(/\/$/, '')}${path}`;
 }
 
 function formatURL(route, params = {}, query = {}) {
@@ -30,9 +34,18 @@ function formatURL(route, params = {}, query = {}) {
   return toURLString({
     path: qualifyURL(route.paramNames.reduce((url, param) => {
       return url.replace(':' + param, params[param]);
-    }, route.route), params),
+    }, route.route), route, params),
     query
   });
+}
+
+function stripPrefix(path, prefix) {
+  if (prefix) {
+    const stripped = path.replace(new RegExp(`^${prefix}`), '');
+    return stripped ? stripped : '/';
+  } else {
+    return path;
+  }
 }
 
 export function getURL(routes, page, params, query) {
@@ -89,15 +102,6 @@ export function toURLString({query, path}) {
 }
 
 const URL_RE = /(?:(?:(https?):)?\/\/([^:\/]+)(?::(\d+))?)?([^\?]*)(?:\?(.*))?/;
-
-function stripPrefix(path, prefix) {
-  if (prefix) {
-    const stripped = path.replace(new RegExp(`^${prefix}`), '');
-    return stripped ? stripped : '/';
-  } else {
-    return path;
-  }
-}
 
 export function match({regexp, page, paramNames, prefix}, url) {
   const [, scheme, host, port, path, query] = url.match(URL_RE);
