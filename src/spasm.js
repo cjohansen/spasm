@@ -1,4 +1,4 @@
-import {createRoute, getPage, getURL, toURLString} from './router';
+import {createRoute, getLocation, getURL, toURLString} from './router';
 import {EventEmitter} from 'events';
 import {createAtom} from 'js-atom';
 
@@ -97,7 +97,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
 
   function loadURL(url, state = {}) {
     updateState(state);
-    const res = getPage(routes, url);
+    const res = getLocation(routes, url);
     log('loadURL', url, res.page, res.params, res.query);
     currentData.location = res;
     return renderPage(pages[res.page] || pages[404]);

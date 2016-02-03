@@ -528,7 +528,7 @@ Produces a URL string from a path and a query parameter object.
 
 Generates the URL to the given page type with the given parameters.
 
-### `const location = getPage(routes, url)`
+### `const location = getLocation(routes, url)`
 
 Returns the matching page from the routing table for the giving URL. If no route
 matches, it returns `null`. The location description includes the following

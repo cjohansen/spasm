@@ -1,5 +1,5 @@
 /*global describe, beforeEach, it */
-import {createRoutes, getPage, getURL, toURLString} from '../src/router';
+import {createRoutes, getLocation, getURL, toURLString} from '../src/router';
 import {assert, refute} from './test-helper';
 
 describe('Router', () => {
@@ -42,13 +42,13 @@ describe('Router', () => {
     });
   });
 
-  describe('getPage', () => {
+  describe('getLocation', () => {
     it('returns noop route for non-existent page', () => {
-      assert.equals(getPage([], '/lists/12'), {params: {}});
+      assert.equals(getLocation([], '/lists/12'), {params: {}});
     });
 
     it('returns matching route', () => {
-      assert.match(getPage(routes, '/lists/12'), {
+      assert.match(getLocation(routes, '/lists/12'), {
         page: 'viewList',
         url: '/lists/12',
         path: '/lists/12',
@@ -61,7 +61,7 @@ describe('Router', () => {
     });
 
     it('returns matching route with host and port', () => {
-      assert.match(getPage(routes, 'https://localhost:6777/lists/12'), {
+      assert.match(getLocation(routes, 'https://localhost:6777/lists/12'), {
         page: 'viewList',
         url: 'https://localhost:6777/lists/12',
         path: '/lists/12',
@@ -74,51 +74,51 @@ describe('Router', () => {
     });
 
     it('parses number parameters as numbers', () => {
-      assert.same(getPage(routes, 'https://localhost:6777/lists/12').params.id, 12);
+      assert.same(getLocation(routes, 'https://localhost:6777/lists/12').params.id, 12);
     });
 
     it('parses query string', () => {
-      const match = getPage(routes, '/lists/12?something=2&dude=other');
+      const match = getLocation(routes, '/lists/12?something=2&dude=other');
       assert.equals(match.query, {something: 2, dude: 'other'});
     });
 
     it('parses query string numbers as numbers', () => {
-      const match = getPage(routes, '/lists/12?one=1&two=-2.34&three=4.3&four=-34');
+      const match = getLocation(routes, '/lists/12?one=1&two=-2.34&three=4.3&four=-34');
 
       assert.equals(match.query, {one: 1, two: -2.34, three: 4.3, four: -34});
     });
 
     it('does not parse query string number-like strings as numbers', () => {
-      const match = getPage(routes, '/lists/12?one=p1&two=-2.34x');
+      const match = getLocation(routes, '/lists/12?one=p1&two=-2.34x');
 
       assert.equals(match.query, {one: 'p1', two: '-2.34x'});
     });
 
     it('parses empty query string', () => {
-      const match = getPage(routes, '/lists/12?');
+      const match = getLocation(routes, '/lists/12?');
       assert.equals(match.query, {});
     });
 
     it('parses query string with multiple versions for same key as array param', () => {
-      const match = getPage(routes, '/lists/12?tag=one&tag=two');
+      const match = getLocation(routes, '/lists/12?tag=one&tag=two');
       assert.equals(match.query.tag, ['one', 'two']);
     });
 
     it('URI decodes parameters', () => {
-      const match = getPage(routes, '/lists/d%C3%B8d?something=gj%C3%B8dsel');
+      const match = getLocation(routes, '/lists/d%C3%B8d?something=gj%C3%B8dsel');
 
       assert.equals(match.params.id, 'død');
       assert.equals(match.query.something, 'gjødsel');
     });
 
     it('does not match un-prefixed route to prefixed path', () => {
-      const match = getPage(createRoutes([['index', '/:id']]), '/something/42');
+      const match = getLocation(createRoutes([['index', '/:id']]), '/something/42');
 
       assert.equals(match, {params: {}});
     });
 
     it('parses out route prefix', () => {
-      const match = getPage(
+      const match = getLocation(
         createRoutes([['index', '/:id']], {prefix: '/something'}),
         '/something/42'
       );
@@ -127,7 +127,7 @@ describe('Router', () => {
     });
 
     it('matches prefixed /', () => {
-      const match = getPage(
+      const match = getLocation(
         createRoutes([['index', '/']], {prefix: '/something'}),
         '/something'
       );
@@ -136,7 +136,7 @@ describe('Router', () => {
     });
 
     it('defaults prefix to empty string', () => {
-      const match = getPage(createRoutes([['index', '/:id']]), '/42');
+      const match = getLocation(createRoutes([['index', '/:id']]), '/42');
 
       assert.match(match, {prefix: ''});
     });

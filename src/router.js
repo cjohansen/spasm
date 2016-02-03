@@ -121,7 +121,7 @@ export function match({regexp, page, paramNames, prefix}, url) {
   };
 }
 
-export function getPage(routes, url) {
+export function getLocation(routes, url) {
   return first(route => match(route, url), routes) || {params: {}};
 }
 
