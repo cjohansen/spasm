@@ -453,4 +453,64 @@ describe('Spasm', () => {
         }, 30));
     });
   });
+
+  describe('seedState', () => {
+    beforeEach(() => {
+      page = {
+        getData: sinon.stub(),
+        seedState: sinon.stub(),
+        prepareData: sinon.stub(),
+        render: sinon.stub()
+      };
+
+      app.addPage('viewUser', '/users/:id', page);
+    });
+
+    it('is called with current data', () => {
+      return app.loadURL('/users/42').
+        then(() => {
+          assert.calledOnce(page.seedState);
+          assert.callOrder(page.getData, page.seedState);
+          assert.match(page.seedState.getCall(0).args, [{
+            location: {
+              host: undefined,
+              page: 'viewUser',
+              params: {id: 42},
+              path: '/users/42',
+              port: 80,
+              query: {},
+              scheme: 'http',
+              url: '/users/42'
+            },
+            pageData: undefined,
+            state: {some: 'state'}
+          }]);
+        });
+    });
+
+    it('is called after getData, and before prepareData', () => {
+      return app.loadURL('/users/42').
+        then(() => {
+          assert.callOrder(page.getData, page.seedState, page.prepareData);
+        });
+    });
+
+    it('merges return value into current state', () => {
+      page.seedState.returns({name: 'Baloo'});
+
+      return app.loadURL('/users/42').
+        then(() => {
+          assert.match(page.prepareData.args[0][0], {
+            state: {name: 'Baloo'}
+          });
+        });
+    });
+
+    it('ignores undefined return from seedState', () => {
+      return app.loadURL('/users/42').
+        then(() => {
+          assert.equals(page.prepareData.args[0][0].state, {some: 'state'});
+        });
+    });
+  });
 });

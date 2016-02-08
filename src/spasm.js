@@ -68,21 +68,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     return data;
   }
 
-  function renderPage(page) {
-    return getData(page, currentData).
-      then(pageData => {
-        currentData.pageData = pageData;
-        currentPage = page;
-        return renderApp();
-      }).
-      catch(e => setTimeout(() => { throw e; }));
-  }
-
-  function updateState(state) {
-    if (typeof state === 'function') {
-      state = state(currentData.state.deref());
-    }
-
+  function swapState(state) {
     currentData.state.swap(currentState => Object.keys(state).reduce((res, k) => {
       if (state[k] === null) {
         delete res[k];
@@ -91,7 +77,33 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
       }
       return res;
     }, currentState));
+  }
 
+  function seedState(page) {
+    if (!page.seedState) {
+      return;
+    }
+
+    swapState(page.seedState(deref(currentData)) || {});
+  }
+
+  function renderPage(page) {
+    return getData(page, currentData).
+      then(pageData => {
+        currentData.pageData = pageData;
+        currentPage = page;
+        return seedState(page);
+      }).
+      then(renderApp).
+      catch(e => setTimeout(() => { throw e; }));
+  }
+
+  function updateState(state) {
+    if (typeof state === 'function') {
+      state = state(currentData.state.deref());
+    }
+
+    swapState(state);
     events.emit('updateState', currentData.state.deref());
   }
 

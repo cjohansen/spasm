@@ -508,6 +508,14 @@ to render. `pageData` is the data retrieved with `getData`.
 If the object returned from `prepareData` includes a `title`, it will be used
 for the page title (e.g. `document.title`).
 
+#### `page.seedState({pageData, state, location})`
+
+Seed state for this page. This function is called after `getData` and before
+`prepareData`, and allows you to add state without triggering recursive renders
+(as `updateState` would do, if called from `getData` or `prepareData`). The
+return value from this function is merged into the state before `prepareData` is
+called. `prepareData` will receive the freshly updated state.
+
 ## The router
 
 The router is not exposed directly, although it is completely possible to use it
