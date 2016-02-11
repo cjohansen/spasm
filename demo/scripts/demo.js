@@ -6,6 +6,7 @@ const app = createApp({
   state: {currentUser: 'Christian'},
 
   finalizeData(data, location, state) {
+    data = data || {};
     data.flash = state.flash;
     return data;
   },
@@ -81,6 +82,14 @@ app.addPage('viewUser', '/users/:id', {
 
 app.addPage('editUser', '/users/:id/edit', {
   render: EditUserComponent
+});
+
+app.addPage('index', '/', {
+  render: React.createFactory(React.createClass({
+    render() {
+      return a({href: app.getURL('viewUser', {id: 'someone'})}, 'Go here');
+    }
+  }))
 });
 
 app.start();
