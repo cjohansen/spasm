@@ -1,7 +1,7 @@
-# Spa-sm - Single Page React Applications
+# Spa-sm - Single Page Application State Management
 
-Spasm provides "just enough structure" for single page web applications that use
-React for rendering.
+Spasm provides "just enough structure" to navigate and manage state in single
+page web applications.
 
 ## Concepts
 
@@ -33,8 +33,9 @@ A page is an object with at least a `render` method, and optionally a method to
 fetch data, and a method to process data. When a page is requested, Spasm will
 perform the following steps to render the page:
 
-* Get data with `page.getData(currentState)`
-* Prepare data for rendering with `page.prepareData(data)`
+* Get data with `page.getData({state, location})`
+* Optionally seed state for that page through `page.seedState({pageData, state, location})`
+* Prepare data for rendering with `page.prepareData({pageData, state, location})`
 * Finalize data for rendering with `app.finalizeData(preparedData, location, state)`
 * Call on the app's `render` function with `page.render` and the prepared data
 
@@ -93,9 +94,7 @@ const UserComponent = React.createFactory(React.createClass({
 }));
 
 app.addPage('viewUser', '/users/:id', {
-  render(data) {
-    return UserComponent(data);
-  }
+  render: UserComponent
 });
 ```
 
@@ -114,7 +113,7 @@ bits it needs to render.
 ```js
 const UserComponent = React.createFactory(React.createClass({
   render() {
-    return React.DOM.h1({}, this.props.name);
+    return h1({}, this.props.name);
   }
 }));
 
@@ -127,9 +126,7 @@ app.addPage('viewUser', '/users/:id', {
     };
   },
 
-  render(data) {
-    return UserComponent(data);
-  }
+  render: UserComponent
 });
 ```
 
