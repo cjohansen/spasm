@@ -101,6 +101,10 @@ export function toURLString({query, path}) {
   return path + (queryString ? '?' + queryString : '');
 }
 
+export function parseQueryString(query) {
+  return paramify(query && query.replace(/^\?/, '').split('&').map(kv => kv.split('=')) || []);
+}
+
 const URL_RE = /(?:(?:(https?):)?\/\/([^:\/]+)(?::(\d+))?)?([^\?]*)(?:\?(.*))?/;
 
 export function match({regexp, page, paramNames, prefix}, url) {
@@ -117,7 +121,7 @@ export function match({regexp, page, paramNames, prefix}, url) {
     port: Number(port || 80),
     scheme: scheme || 'http',
     params: paramify(vals.slice(1).map((v, idx) => [paramNames[idx], v])),
-    query: paramify(query && query.split('&').map(kv => kv.split('=')) || [])
+    query: parseQueryString(query)
   };
 }
 

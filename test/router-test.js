@@ -1,5 +1,5 @@
 /*global describe, beforeEach, it */
-import {createRoutes, getLocation, getURL, toURLString} from '../src/router';
+import {createRoutes, getLocation, getURL, toURLString, parseQueryString} from '../';
 import {assert, refute} from './test-helper';
 
 describe('Router', () => {
@@ -205,6 +205,22 @@ describe('Router', () => {
         query: {something: true},
         path: '/lists/12'
       }), '/lists/12?something');
+    });
+  });
+
+  describe('parseQueryString', () => {
+    it('parses query string', () => {
+      assert.equals(parseQueryString('id=12&something=other'), {
+        id: 12,
+        something: 'other'
+      });
+    });
+
+    it('parses location.search with leading question mark', () => {
+      assert.equals(parseQueryString('?id=12&something=other'), {
+        id: 12,
+        something: 'other'
+      });
     });
   });
 });

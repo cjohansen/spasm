@@ -1,5 +1,5 @@
 /*global describe, beforeEach, it */
-import {createApp} from '../src/spasm';
+import {createApp} from '../';
 import {assert, refute, sinon} from './test-helper';
 
 function promised(val) {

@@ -1,17 +1,18 @@
 {
   "name": "spa-sm",
-  "version": "0.28.0",
+  "version": "0.29.0",
   "description": "Single Page Application State Manager - 'Just enough structure' for single page web apps",
-  "main": "src/spasm.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "start": "nodemon demo/index.js",
-    "build": "browserify -s spasm -o spasm.js src/spasm.js",
-    "postbuild": "uglify -s spasm.js -o spasm.js",
-    "prepublish": "npm run build",
     "test": "mocha -R progress --require babel-register --recursive test",
+    "prebuild": "mkdir -p dist",
+    "build": "browserify -s spasm -o dist/spasm.js index.js",
+    "postbuild": "uglify -s dist/spasm.js -o dist/spasm.js",
+    "prepublish": "npm run build",
     "autotest": "npm run test -- --watch"
   },
   "keywords": [
