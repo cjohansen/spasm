@@ -179,6 +179,11 @@ describe('Router', () => {
       assert.equals(url, '/lists/12?filter=blergh');
     });
 
+    it('generates URL with URL encoded query parameters', () => {
+      const url = getURL(routes, 'viewList', {id: 12}, {filter: 'blergh & blarg'});
+      assert.equals(url, '/lists/12?filter=blergh%20%26%20blarg');
+    });
+
     it('generates URL with array query parameters', () => {
       const url = getURL(routes, 'viewList', {id: 12}, {tag: ['one', 'two']});
       assert.equals(url, '/lists/12?tag=one&tag=two');
@@ -200,6 +205,13 @@ describe('Router', () => {
       }), '/lists/12?id=12&something=other');
     });
 
+    it('generates URL with URL encoded query string', () => {
+      assert.equals(toURLString({
+        query: {id: 12, something: 'blerg blarg'},
+        path: '/lists/12'
+      }), '/lists/12?id=12&something=blerg%20blarg');
+    });
+
     it('generates URL with boolean query string params', () => {
       assert.equals(toURLString({
         query: {something: true},
@@ -213,6 +225,13 @@ describe('Router', () => {
       assert.equals(parseQueryString('id=12&something=other'), {
         id: 12,
         something: 'other'
+      });
+    });
+
+   it('parses URL encoded query string', () => {
+      assert.equals(parseQueryString('id=12&something=other%20dat'), {
+        id: 12,
+        something: 'other dat'
       });
     });
 

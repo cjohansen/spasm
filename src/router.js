@@ -95,7 +95,7 @@ export function toURLString({query, path}) {
       return k;
     }
     return (Array.isArray(query[k]) ? query[k] : [query[k]]).map(v => {
-      return `${k}=${v}`;
+      return `${k}=${encodeURIComponent(v)}`;
     }).join('&');
   }).filter(p => p).join('&');
   return path + (queryString ? '?' + queryString : '');
