@@ -1,5 +1,6 @@
 /*global describe, beforeEach, it */
-import {createRoutes, getLocation, getURL, toURLString, parseQueryString} from '../';
+import {parseRoute, createRoutes, getLocation, getURL,
+        toURLString, parseQueryString, formatURL} from '../';
 import {assert, refute} from './test-helper';
 
 describe('Router', () => {
@@ -10,6 +11,26 @@ describe('Router', () => {
       ['viewList', '/lists/:id'],
       ['viewListItemComment', '/lists/:id/items/:itemId/comments/:listItemCommentId']
     ]);
+  });
+
+  describe('parseRoute', () => {
+    it('parses route', () => {
+      assert.match(parseRoute('/something/:id'), {
+        paramNames: ['id'],
+        route: '/something/:id'
+      });
+    });
+
+    it('allows dash in route variable', () => {
+      assert.match(parseRoute('/something/:id-here'), {
+        paramNames: ['id-here'],
+        route: '/something/:id-here'
+      });
+    });
+
+    it('generates regexp to recognize path', () => {
+      assert(parseRoute('/something/:id').regexp.test('/something/42'));
+    });
   });
 
   describe('createRoutes', () => {
@@ -240,6 +261,15 @@ describe('Router', () => {
         id: 12,
         something: 'other'
       });
+    });
+  });
+
+  describe('formatURL', () => {
+    it('formats URL', () => {
+      assert.equals(
+        formatURL(parseRoute('/something/:id'), {id: 42}, {ok: true}),
+        '/something/42?ok'
+      );
     });
   });
 });

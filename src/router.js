@@ -29,7 +29,7 @@ function qualifyURL(path, route, {host, port, scheme}) {
   return `${scheme || 'http'}://${host.replace(/\/$/, '')}${path}`;
 }
 
-function formatURL(route, params = {}, query = {}) {
+export function formatURL(route, params = {}, query = {}) {
   if (!route) { return null; }
   return toURLString({
     path: qualifyURL(route.paramNames.reduce((url, param) => {
@@ -129,17 +129,22 @@ export function getLocation(routes, url) {
   return first(route => match(route, url), routes) || {params: {}};
 }
 
-export function createRoute(page, route, options = {}) {
-  const paramNames = (route.match(/:[a-zA-Z0-9]+/g) || []).map(n => n.slice(1));
+export function parseRoute(route) {
+  const paramNames = (route.match(/:[a-zA-Z0-9-]+/g) || []).map(n => n.slice(1));
   return {
-    page,
     paramNames,
     route,
-    prefix: options.prefix,
     regexp: new RegExp('^' + paramNames.reduce((page, param) => {
       return page.replace(':' + param, '([^/?]+)');
     }, route) + '$')
   };
+}
+
+export function createRoute(page, route, options = {}) {
+  const parsed = parseRoute(route);
+  parsed.page = page;
+  parsed.prefix = options.prefix;
+  return parsed;
 }
 
 export function createRoutes(routes, options) {
