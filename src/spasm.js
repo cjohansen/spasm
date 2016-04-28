@@ -30,9 +30,14 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     if (res && res.then) {
       return res.then(callback);
     } else if (Array.isArray(res) && res[0] && res[0].then) {
-      const pageData = {};
+      const pageData = {isPartial: true};
+      let results = 0;
       callback(pageData);
       return Promise.all(res.map(r => r.then(data => {
+        results += 1;
+        if (results === res.length) {
+          delete pageData.isPartial;
+        }
         Object.keys(data).forEach(k => pageData[k] = data[k]);
         return callback(pageData);
       })));

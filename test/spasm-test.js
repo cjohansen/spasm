@@ -164,7 +164,7 @@ describe('Spasm', () => {
   });
 
   describe('getData -> [Promise]', () => {
-    it('calls render immediately with empty pageData object', () => {
+    it('calls render immediately with pageData object indicating partial response', () => {
       const app = createApp({render});
 
       const page = {
@@ -176,7 +176,7 @@ describe('Spasm', () => {
       app.loadURL('/things/42');
 
       assert.calledOnce(page.prepareData);
-      assert.equals(page.prepareData.getCall(0).args[0].pageData, {});
+      assert.equals(page.prepareData.getCall(0).args[0].pageData, {isPartial: true});
     });
 
     it('calls render again when first result materializes', () => {
@@ -196,7 +196,7 @@ describe('Spasm', () => {
 
       return promise1.then(() => {
         assert.calledTwice(page.prepareData);
-        assert.equals(page.prepareData.getCall(1).args[0].pageData, {id: 42});
+        assert.equals(page.prepareData.getCall(1).args[0].pageData, {id: 42, isPartial: true});
       });
     });
 
