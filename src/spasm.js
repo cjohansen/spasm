@@ -22,15 +22,22 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     return logger.log(...args);
   };
 
-  function getData(page, currentData) {
+  function getData(page, currentData, callback) {
     const dereffed = deref(currentData);
     log('getData', dereffed);
     const res = page.getData && page.getData(dereffed);
 
     if (res && res.then) {
-      return res;
+      return res.then(callback);
+    } else if (Array.isArray(res) && res[0] && res[0].then) {
+      const pageData = {};
+      callback(pageData);
+      return Promise.all(res.map(r => r.then(data => {
+        Object.keys(data).forEach(k => pageData[k] = data[k]);
+        return callback(pageData);
+      })));
     } else {
-      return new Promise((resolve, reject) => resolve(res));
+      return callback(res);
     }
   }
 
@@ -88,14 +95,12 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
   }
 
   function renderPage(page) {
-    return getData(page, currentData).
-      then(pageData => {
-        currentData.pageData = pageData;
-        currentPage = page;
-        return seedState(page);
-      }).
-      then(renderApp).
-      catch(e => setTimeout(() => { throw e; }));
+    return getData(page, currentData, pageData => {
+      currentData.pageData = pageData;
+      currentPage = page;
+      seedState(page);
+      return Promise.resolve(renderApp());
+    });
   }
 
   function updateState(state) {
@@ -141,6 +146,8 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
   function rerender() {
     if (currentPage) {
       return renderApp();
+    } else {
+      return Promise.resolve();
     }
   }
 

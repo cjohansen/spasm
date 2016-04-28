@@ -163,6 +163,60 @@ describe('Spasm', () => {
     });
   });
 
+  describe('getData -> [Promise]', () => {
+    it('calls render immediately with empty pageData object', () => {
+      const app = createApp({render});
+
+      const page = {
+        getData: sinon.stub().returns([new Promise(() => {})]),
+        prepareData: sinon.spy()
+      };
+
+      app.addPage('viewThing', '/things/:id', page);
+      app.loadURL('/things/42');
+
+      assert.calledOnce(page.prepareData);
+      assert.equals(page.prepareData.getCall(0).args[0].pageData, {});
+    });
+
+    it('calls render again when first result materializes', () => {
+      const app = createApp({render});
+      const resolves = [];
+      const promise1 = new Promise(res => resolves.push(res));
+
+      const page = {
+        getData: sinon.stub().returns([promise1, new Promise(() => {})]),
+        prepareData: sinon.spy()
+      };
+
+      app.addPage('viewThing', '/things/:id', page);
+      app.loadURL('/things/42');
+
+      resolves[0]({id: 42});
+
+      return promise1.then(() => {
+        assert.calledTwice(page.prepareData);
+        assert.equals(page.prepareData.getCall(1).args[0].pageData, {id: 42});
+      });
+    });
+
+    it('merges page data from promises', () => {
+      const app = createApp({render});
+
+      const page = {
+        getData: sinon.stub().returns([Promise.resolve({id: 42}), Promise.resolve({ab: 13})]),
+        prepareData: sinon.spy()
+      };
+
+      app.addPage('viewThing', '/things/:id', page);
+
+      return app.loadURL('/things/42').then(() => {
+        assert.calledThrice(page.prepareData);
+        assert.equals(page.prepareData.getCall(2).args[0].pageData, {id: 42, ab: 13});
+      });
+    });
+  });
+
   describe('debug logging', () => {
     let logger;
 
