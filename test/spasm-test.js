@@ -215,6 +215,32 @@ describe('Spasm', () => {
         assert.equals(page.prepareData.getCall(2).args[0].pageData, {id: 42, ab: 13});
       });
     });
+
+    it('ignores async data from previous page views', () => {
+      const app = createApp({render});
+      const resolves = [];
+      const promises = [];
+
+      const page = {
+        getData() {
+          const promise = new Promise(res => resolves.push(res));
+          promises.push(promise);
+          return [promise];
+        },
+
+        prepareData: sinon.spy()
+      };
+
+      app.addPage('viewThing', '/things/:id', page);
+      app.loadURL('/things/42');
+      app.loadURL('/things/42');
+
+      resolves[0]({id: 42});
+
+      return promises[0].then(() => {
+        assert.calledTwice(page.prepareData);
+      });
+    });
   });
 
   describe('debug logging', () => {

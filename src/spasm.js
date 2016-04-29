@@ -17,6 +17,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
   const pages = {};
   prefix = prefix || '';
   let currentData = {state: createAtom(state || {})}, currentPage;
+  let pageViewId = 0;
 
   const log = typeof logger === 'undefined' ? identity : function (...args) {
     return logger.log(...args);
@@ -26,6 +27,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     const dereffed = deref(currentData);
     log('getData', dereffed);
     const res = page.getData && page.getData(dereffed);
+    const id = ++pageViewId;
 
     if (res && res.then) {
       return res.then(callback);
@@ -34,6 +36,10 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
       let results = 0;
       callback(pageData);
       return Promise.all(res.map(r => r.then(data => {
+        if (pageViewId !== id) {
+          return;
+        }
+
         results += 1;
         if (results === res.length) {
           delete pageData.isPartial;
