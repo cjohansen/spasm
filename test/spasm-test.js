@@ -241,6 +241,24 @@ describe('Spasm', () => {
         assert.calledTwice(page.prepareData);
       });
     });
+
+    it('emits event when all data is loaded', () => {
+      const app = createApp({render});
+      const listener = sinon.spy();
+      app.on('dataLoaded', listener);
+
+      const page = {
+        getData: sinon.stub().returns([Promise.resolve({id: 42}), Promise.resolve({ab: 13})]),
+        prepareData: sinon.spy()
+      };
+
+      app.addPage('viewThing', '/things/:id', page);
+
+      return app.loadURL('/things/42').then(() => {
+        assert.calledOnce(listener);
+        assert(listener.calledAfter(page.prepareData));
+      });
+    });
   });
 
   describe('debug logging', () => {

@@ -1,6 +1,6 @@
 {
   "name": "spa-sm",
-  "version": "0.33.0",
+  "version": "0.34.0",
   "description": "Single Page Application State Manager - 'Just enough structure' for single page web apps",
   "main": "index.js",
   "directories": {

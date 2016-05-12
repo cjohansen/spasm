@@ -46,7 +46,10 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
         }
         Object.keys(data).forEach(k => pageData[k] = data[k]);
         return callback(pageData);
-      })));
+      }))).then(res => {
+        events.emit('dataLoaded', pageData);
+        return res;
+      });
     } else {
       return callback(res);
     }
@@ -186,7 +189,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     rerender,
 
     on: events.on.bind(events),
-    emit: events.emit.bind(events),
+    once: events.once.bind(events),
     off: events.removeListener.bind(events),
 
     getURL(...args) {
