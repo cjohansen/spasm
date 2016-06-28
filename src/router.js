@@ -71,7 +71,7 @@ function paramValue(v) {
 
 function paramify(pairs = []) {
   return pairs.reduce((m, [k, v]) => {
-    const val = paramValue(decodeURIComponent(v));
+    const val = paramValue(typeof v === 'string' ? decodeURIComponent(v) : v);
 
     if (m[k]) {
       if (!Array.isArray(m[k])) {
@@ -102,7 +102,9 @@ export function toURLString({query, path}) {
 }
 
 export function parseQueryString(query) {
-  return paramify(query && query.replace(/^\?/, '').split('&').map(kv => kv.split('=')) || []);
+  return paramify(query && query.replace(/^\?/, '').split('&').map(kv => {
+    return /=/.test(kv) ? kv.split('=') : [kv, true];
+  }) || []);
 }
 
 const URL_RE = /(?:(?:(https?):)?\/\/([^:\/]+)(?::(\d+))?)?([^\?]*)(?:\?(.*))?/;

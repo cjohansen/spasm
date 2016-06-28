@@ -125,6 +125,11 @@ describe('Router', () => {
       assert.equals(match.query.tag, ['one', 'two']);
     });
 
+    it('parses query string booleans', () => {
+      const match = getLocation(routes, '/lists/12?doit');
+      assert.equals(match.query.doit, true);
+    });
+
     it('URI decodes parameters', () => {
       const match = getLocation(routes, '/lists/d%C3%B8d?something=gj%C3%B8dsel');
 
