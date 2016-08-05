@@ -227,6 +227,18 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     },
 
     gotoURL(url, state = {}) {
+      const currentPage = currentData.location && pages[currentData.location.page];
+
+      if (currentPage && currentPage.canUnload) {
+        if (currentPage.canUnload(deref(currentData)) === false) {
+          return rerender();
+        }
+      }
+
+      if (currentPage && currentPage.onUnload) {
+        updateState(currentPage.onUnload(deref(currentData)) || {});
+      }
+
       history.pushState({}, '', url.replace(new RegExp(`^(${prefix})?`), prefix));
       return loadURL(url, state);
     },

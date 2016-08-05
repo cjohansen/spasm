@@ -611,4 +611,62 @@ describe('Spasm', () => {
         });
     });
   });
+
+  describe('canUnload', () => {
+    let page1, page2;
+
+    beforeEach(() => {
+      page1 = {canUnload: sinon.stub()};
+      page2 = {seedState: sinon.stub()};
+      app.addPage('viewUser', '/users/:id', page1);
+      app.addPage('viewSettings', '/settings/:id', page2);
+    });
+
+    it('calls canUnload before seeding state on next page', () => {
+      return app.gotoURL('/users/1')
+        .then(() => app.gotoURL('/settings/1'))
+        .then(() => {
+          assert.calledOnce(page1.canUnload);
+          assert.callOrder(page1.canUnload, page2.seedState);
+        });
+    });
+
+    it('does not navigate if canUnload returns false', () => {
+      page1.canUnload.returns(false);
+
+      return app.gotoURL('/users/1')
+        .then(() => app.gotoURL('/settings/1'))
+        .then(() => {
+          refute.called(page2.seedState);
+        });
+    });
+  });
+
+  describe('onUnload', () => {
+    beforeEach(() => {
+      page = {onUnload: sinon.stub()};
+      app.addPage('viewUser', '/users/:id', page);
+      app.addPage('viewSettings', '/settings/:id', {render() {}});
+
+    });
+
+    it('calls onUnload before rendering new page', () => {
+      return app.gotoURL('/users/1')
+        .then(() => {
+          refute.called(page.onUnload);
+          return app.gotoURL('/settings/1');
+        })
+        .then(() => assert.calledOnce(page.onUnload));
+    });
+
+    it('updates state with result of onUnload', () => {
+      page.onUnload.returns({lol: 'rofl'});
+
+      return app.gotoURL('/users/1')
+        .then(() => app.gotoURL('/settings/1'))
+        .then(() => {
+          assert.match(app.getState(), {lol: 'rofl'});
+        });
+    });
+  });
 });
