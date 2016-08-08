@@ -278,8 +278,8 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
       return currentData.state.deref();
     },
 
-    getLocation() {
-      return currentData.location;
+    getLocation(url) {
+      return url ? getLocation(routes, url) : currentData.location;
     }
   };
 }
