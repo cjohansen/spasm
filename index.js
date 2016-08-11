@@ -17,11 +17,11 @@ function getLink(el) {
 
 export function monitorLinks(app) {
   return e => {
-    const link = getLink(e.target);
+    const href = (getLink(e.target) || {}).href;
 
-    if (link && e.which === 1 && !e.ctrlKey && !e.metaKey && app.getLocation(link.href).page) {
+    if (href && e.which === 1 && !e.ctrlKey && !e.metaKey && app.getLocation(href).page) {
       e.preventDefault();
-      app.gotoURL(link.href);
+      app.gotoURL(href);
     }
   };
 }
