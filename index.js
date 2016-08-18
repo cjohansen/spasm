@@ -19,7 +19,13 @@ export function monitorLinks(app) {
   return e => {
     const href = (getLink(e.target) || {}).href;
 
-    if (href && e.which === 1 && !e.ctrlKey && !e.metaKey && app.getLocation(href).page) {
+    if (!href || e.which !== 1 || e.ctrlKey || !e.metaKey) {
+      return;
+    }
+
+    const {host, page} = app.getLocation(href);
+
+    if (page && (!host || host === window.location.host)) {
       e.preventDefault();
       app.gotoURL(href);
     }
