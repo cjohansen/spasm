@@ -659,6 +659,28 @@ describe('Spasm', () => {
         .then(() => assert.calledOnce(page.onUnload));
     });
 
+    it('calls onUnload if canUnload returns true', () => {
+      page.canUnload = sinon.stub().returns(true);
+
+      return app.gotoURL('/users/1')
+        .then(() => {
+          refute.called(page.onUnload);
+          return app.gotoURL('/settings/1');
+        })
+        .then(() => assert.callOrder(page.canUnload, page.onUnload));
+    });
+
+    it('does not call onUnload if canUnload returns false', () => {
+      page.canUnload = sinon.stub().returns(false);
+
+      return app.gotoURL('/users/1')
+        .then(() => {
+          refute.called(page.onUnload);
+          return app.gotoURL('/settings/1');
+        })
+        .then(() => refute.called(page.onUnload));
+    });
+
     it('updates state with result of onUnload', () => {
       page.onUnload.returns({lol: 'rofl'});
 
