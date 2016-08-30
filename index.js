@@ -19,13 +19,14 @@ export function monitorLinks(app) {
   return e => {
     const href = (getLink(e.target) || {}).href;
 
-    if (!href || e.which !== 1 || e.ctrlKey || !e.metaKey) {
+    if (!href || e.which !== 1 || e.ctrlKey || e.metaKey) {
       return;
     }
 
-    const {host, page} = app.getLocation(href);
+    const {host, port, page} = app.getLocation(href);
+    const hostport = `${host}${port && port !== 80 ? `:${port}` : ''}`;
 
-    if (page && (!host || host === window.location.host)) {
+    if (page && (!host || hostport === window.location.host)) {
       e.preventDefault();
       app.gotoURL(href);
     }
