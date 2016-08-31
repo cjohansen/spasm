@@ -166,6 +166,18 @@ describe('Router', () => {
 
       assert.match(match, {prefix: ''});
     });
+
+    it('ignores hash in params', () => {
+      const match = getLocation(createRoutes([['index', '/:id']]), '/42#lol');
+
+      assert.match(match, {params: {id: 42}});
+    });
+
+    it('exposes hash', () => {
+      const match = getLocation(createRoutes([['index', '/:id']]), '/42#lol');
+
+      assert.match(match, {hash: 'lol'});
+    });
   });
 
   describe('getURL', () => {

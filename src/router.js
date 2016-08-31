@@ -109,7 +109,8 @@ export function parseQueryString(query) {
 
 const URL_RE = /(?:(?:(https?):)?\/\/([^:\/]+)(?::(\d+))?)?([^\?]*)(?:\?(.*))?/;
 
-export function match({regexp, page, paramNames, prefix}, url) {
+export function match({regexp, page, paramNames, prefix}, fullUrl) {
+  const [url, hash] = fullUrl.split('#');
   const [, scheme, host, port, path, query] = url.match(URL_RE);
   const vals = stripPrefix(path, prefix).match(regexp);
   if (!vals) { return null; }
@@ -119,6 +120,7 @@ export function match({regexp, page, paramNames, prefix}, url) {
     url,
     path,
     host,
+    hash,
     prefix: prefix || '',
     port: Number(port || 80),
     scheme: scheme || 'http',
