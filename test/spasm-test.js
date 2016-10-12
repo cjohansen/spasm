@@ -30,14 +30,13 @@ describe('Spasm', () => {
           assert.calledOnceWith(page.getData);
           assert.match(page.getData.getCall(0).args, [{
             location: {
-              host: undefined,
               page: 'viewUser',
               params: {id: 42},
               path: '/users/42',
               port: 80,
               query: {},
               scheme: 'http',
-              url: '/users/42'
+              url: 'http://localhost/users/42'
             },
             pageData: undefined,
             state: {some: 'state'}
@@ -102,14 +101,13 @@ describe('Spasm', () => {
           const args = finalizeData.getCall(0).args;
           assert.match(args, [
             {id: 42},
-            {host: undefined,
-             page: 'viewUser',
+            {page: 'viewUser',
              params: {id: 42},
              path: '/users/42',
              port: 80,
              query: {},
              scheme: 'http',
-             url: '/users/42'},
+             url: 'http://localhost/users/42'},
             {some: 'state'}
           ]);
         });
@@ -571,14 +569,14 @@ describe('Spasm', () => {
           assert.callOrder(page.getData, page.seedState);
           assert.match(page.seedState.getCall(0).args, [{
             location: {
-              host: undefined,
+              host: 'localhost',
               page: 'viewUser',
               params: {id: 42},
               path: '/users/42',
               port: 80,
               query: {},
               scheme: 'http',
-              url: '/users/42'
+              url: 'http://localhost/users/42'
             },
             pageData: undefined,
             state: {some: 'state'}

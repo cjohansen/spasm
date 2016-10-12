@@ -126,9 +126,14 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     events.emit('updateState', currentData.state.deref());
   }
 
+  function qualify(url) {
+    const pf = `${window.location.protocol}//${window.location.host}`;
+    return url.indexOf(pf) < 0 ? `${pf}${url.replace(/^\/?/, '/')}` : url;
+  }
+
   function loadURL(url, state = {}) {
     updateState(state);
-    const res = getLocation(routes, url);
+    const res = getLocation(routes, qualify(url));
     log('loadURL', url, res.page, res.params, res.query);
     currentData.location = res;
     return renderPage(pages[res.page] || pages[404]);
@@ -279,7 +284,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     },
 
     getLocation(url) {
-      return url ? getLocation(routes, url) : currentData.location;
+      return url ? getLocation(routes, qualify(url)) : currentData.location;
     }
   };
 }

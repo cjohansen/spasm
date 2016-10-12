@@ -11,3 +11,5 @@ refSin(referee, sinon);
 export {sinon};
 export const assert = referee.assert;
 export const refute = referee.refute;
+
+global.window = {location: {protocol: 'http:', host: 'localhost'}};
