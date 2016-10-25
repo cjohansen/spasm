@@ -1,6 +1,6 @@
 {
   "name": "spa-sm",
-  "version": "0.41.0",
+  "version": "0.42.0",
   "description": "Single Page Application State Manager - 'Just enough structure' for single page web apps",
   "main": "index.js",
   "directories": {
@@ -11,7 +11,7 @@
     "test": "mocha -R progress --require babel-register --recursive test",
     "prebuild": "mkdir -p dist",
     "build": "browserify -s spasm -o dist/spasm.js index.js",
-    "postbuild": "uglify -s dist/spasm.js -o dist/spasm.js",
+    "postbuild": "uglifyjs -o dist/spasm.js dist/spasm.js",
     "prepublish": "npm run build",
     "autotest": "npm run test -- --watch"
   },
@@ -23,27 +23,26 @@
   "author": "Christian Johansen",
   "license": "ISC",
   "dependencies": {
-    "babel-preset-es2015": "^6.0.15",
-    "babelify": "^7.2.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babelify": "^7.3.0",
     "js-atom": "^0.4.0",
-    "react": "~0.13.3",
-    "uglifyify": "^3.0.1"
+    "uglifyify": "^3.0.4"
   },
   "devDependencies": {
-    "babel-polyfill": "^6.1.19",
-    "babel-register": "^6.4.3",
-    "browserify": "^11.1.0",
+    "babel-polyfill": "^6.16.0",
+    "babel-register": "^6.16.3",
+    "browserify": "^13.1.1",
     "browserify-derequire": "^0.9.4",
-    "browserify-middleware": "~7.0.0",
-    "express": "~4.13.3",
-    "formatio": "^1.1.2",
-    "jasmine-core": "^2.3.4",
-    "mocha": "^2.3.4",
-    "nodemon": "~1.4.1",
-    "referee": "^1.1.1",
-    "referee-sinon": "^1.0.2",
-    "sinon": "^1.17.0",
-    "uglify": "~0.1.5"
+    "browserify-middleware": "^7.1.0",
+    "express": "^4.14.0",
+    "formatio": "^1.2.0",
+    "mocha": "^3.1.2",
+    "nodemon": "^1.11.0",
+    "react": "^0.13.3",
+    "referee": "^1.2.0",
+    "referee-sinon": "^1.0.3",
+    "sinon": "^1.17.6",
+    "uglify-js": "^2.7.3"
   },
   "browserify": {
     "transform": [
