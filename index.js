@@ -19,20 +19,20 @@ const identity = v => v;
 
 export function monitorLinks(app, handleExternalLinks = identity) {
   return e => {
-    const href = (getLink(e.target) || {}).href;
+    const link = getLink(e.target) || {};
 
-    if (!href || e.which !== 1 || e.ctrlKey || e.metaKey) {
+    if (!link.href || e.which !== 1 || e.ctrlKey || e.metaKey) {
       return;
     }
 
-    const {host, port, page} = app.getLocation(href);
+    const {host, port, page} = app.getLocation(link.href);
     const hostport = `${host}${port && port !== 80 ? `:${port}` : ''}`;
 
     if (page && (!host || hostport === window.location.host)) {
       e.preventDefault();
-      app.gotoURL(href);
+      app.gotoURL(link.href);
     } else {
-      handleExternalLinks(e);
+      handleExternalLinks(e, link);
     }
   };
 }
