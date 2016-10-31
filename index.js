@@ -15,7 +15,9 @@ function getLink(el) {
   return getLink(el.parentNode);
 }
 
-export function monitorLinks(app) {
+const identity = v => v;
+
+export function monitorLinks(app, handleExternalLinks = identity) {
   return e => {
     const href = (getLink(e.target) || {}).href;
 
@@ -29,6 +31,8 @@ export function monitorLinks(app) {
     if (page && (!host || hostport === window.location.host)) {
       e.preventDefault();
       app.gotoURL(href);
+    } else {
+      handleExternalLinks(e);
     }
   };
 }
