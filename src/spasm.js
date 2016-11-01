@@ -202,7 +202,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     },
 
     addAction(event, handler) {
-      bus.on(event, (...data) => handler(...data, deref(currentData)));
+      bus.on(event, (...data) => handler(deref(currentData), ...data));
     },
 
     performAction(action) {
@@ -285,6 +285,10 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
 
     getLocation(url) {
       return url ? getLocation(routes, qualify(url)) : currentData.location;
+    },
+
+    getData() {
+      return deref(currentData);
     }
   };
 }

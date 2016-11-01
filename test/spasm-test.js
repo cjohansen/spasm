@@ -313,7 +313,7 @@ describe('Spasm', () => {
 
       app.triggerAction(['doIt', 1, 2, 3]);
 
-      assert.calledOnceWith(doIt, 1, 2, 3);
+      assert.calledOnceWith(doIt, app.getData(), 1, 2, 3);
     });
 
     it('calls action handler with call-time arguments', () => {
@@ -322,7 +322,7 @@ describe('Spasm', () => {
 
       app.triggerAction(['doIt', 1, 2, 3], 4, 5);
 
-      assert.calledOnceWith(doIt, 1, 2, 3, 4, 5);
+      assert.calledOnceWith(doIt, app.getData(), 1, 2, 3, 4, 5);
     });
 
     it('returns promise that yields all action results', () => {
@@ -439,7 +439,7 @@ describe('Spasm', () => {
 
       app.performAction(['doIt', 42])(event);
 
-      assert.calledOnceWith(doIt, 42);
+      assert.calledOnceWith(doIt, app.getData(), 42);
       assert.calledOnce(event.preventDefault);
     });
 
@@ -463,7 +463,7 @@ describe('Spasm', () => {
 
       app.performAction(['doIt'])({nativeEvent});
 
-      assert.same(doIt.getCall(0).args[0], nativeEvent);
+      assert.same(doIt.getCall(0).args[1], nativeEvent);
     });
   });
 
