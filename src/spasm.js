@@ -184,6 +184,23 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     return refresh();
   }
 
+  function gotoURL(url, state, historyMethod) {
+    const currentPage = currentData.location && pages[currentData.location.page];
+
+    if (currentPage && currentPage.canUnload) {
+      if (currentPage.canUnload(deref(currentData)) === false) {
+        return rerender();
+      }
+    }
+
+    if (currentPage && currentPage.onUnload) {
+      updateState(currentPage.onUnload(deref(currentData)) || {});
+    }
+
+    history[historyMethod]({}, '', url.replace(new RegExp(`^(${prefix})?`), prefix));
+    return loadURL(url, state);
+  }
+
   const flashSchedule = {};
 
   return {
@@ -232,20 +249,11 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     },
 
     gotoURL(url, state = {}) {
-      const currentPage = currentData.location && pages[currentData.location.page];
+      return gotoURL(url, state, 'pushState');
+    },
 
-      if (currentPage && currentPage.canUnload) {
-        if (currentPage.canUnload(deref(currentData)) === false) {
-          return rerender();
-        }
-      }
-
-      if (currentPage && currentPage.onUnload) {
-        updateState(currentPage.onUnload(deref(currentData)) || {});
-      }
-
-      history.pushState({}, '', url.replace(new RegExp(`^(${prefix})?`), prefix));
-      return loadURL(url, state);
+    replaceURL(url, state = {}) {
+      return gotoURL(url, state, 'replaceState');
     },
 
     updateQueryParams(params, state = {}) {
