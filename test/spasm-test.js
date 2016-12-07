@@ -55,6 +55,15 @@ describe('Spasm', () => {
         });
     });
 
+    it('calls prepare data with all property changes', () => {
+      page.getData.returns({});
+
+      return app.loadURL('/users/42').
+        then(() => {
+          assert.equals(page.prepareData.getCall(0).args[1], ['spasm:pageData', 'some']);
+        });
+    });
+
     it('does not call prepare data before getData promise resolves', () => {
       page.getData.returns(new Promise(() => {}));
 
@@ -352,6 +361,7 @@ describe('Spasm', () => {
         then(() => {
           assert.calledTwice(page.getData);
           assert.calledTwice(page.prepareData);
+          assert.equals(page.prepareData.args[1][1], ['spasm:pageData', 'some']);
           assert.calledTwice(render);
         });
     });
@@ -473,8 +483,9 @@ describe('Spasm', () => {
         then(() => app.updateQueryParams({filter: 'everything'})).
         then(() => {
           assert.equals(app.getCurrentURL(), '/users/42?filter=everything');
-          const arg = page.prepareData.getCall(1).args[0];
-          assert.equals(arg.location.query, {filter: 'everything'});
+          const [{location}, changes] = page.prepareData.getCall(1).args;
+          assert.equals(location.query, {filter: 'everything'});
+          assert.equals(changes, ['spasm:pageData', 'some']);
         });
     });
 
@@ -500,9 +511,18 @@ describe('Spasm', () => {
       return app.loadURL('/users/42').
         then(() => app.updateState({user: 'Someone'})).
         then(() => {
-          const arg = page.prepareData.getCall(1).args[0];
-          assert.equals(arg.state, {some: 'state', user: 'Someone'});
+          const [{state}] = page.prepareData.getCall(1).args;
+          assert.equals(state, {some: 'state', user: 'Someone'});
           assert.calledTwice(render);
+        });
+    });
+
+    it('calls prepareData with the changed keys', () => {
+      return app.loadURL('/users/42').
+        then(() => app.updateState({user: 'Someone'})).
+        then(() => {
+          const [_, changes] = page.prepareData.getCall(1).args;
+          assert.equals(changes, ['user']);
         });
     });
   });

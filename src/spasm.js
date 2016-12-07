@@ -55,10 +55,10 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     }
   }
 
-  function prep(page, data) {
+  function prep(page, data, changes) {
     if (page.prepareData) {
       log('prepareData', data);
-      return page.prepareData(data);
+      return page.prepareData(data, changes);
     }
 
     log('No prepareData, using raw page data', data.pageData);
@@ -74,9 +74,9 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     return data || {};
   }
 
-  function renderApp() {
+  function renderApp(changes) {
     const data = finalize(
-      prep(currentPage, deref(currentData)),
+      prep(currentPage, deref(currentData), changes),
       currentData.location,
       currentData.state.deref()
     );
@@ -113,7 +113,8 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
       currentData.pageData = pageData;
       currentPage = page;
       seedState(page);
-      return Promise.resolve(renderApp());
+      const changes = renderApp(['spasm:pageData'].concat(Object.keys(currentData.state.deref())));
+      return Promise.resolve(changes);
     });
   }
 
@@ -162,9 +163,9 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
     return toURLString(currentData.location);
   }
 
-  function rerender() {
+  function rerender(changes) {
     if (currentPage) {
-      return renderApp();
+      return renderApp(changes || []);
     } else {
       return Promise.resolve();
     }
@@ -172,7 +173,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
 
   function updateStateAndRender(state) {
     updateState(state);
-    return rerender();
+    return rerender(Object.keys(state || {}));
   }
 
   function updateQueryParams(params) {
@@ -189,7 +190,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
 
     if (currentPage && currentPage.canUnload) {
       if (currentPage.canUnload(deref(currentData)) === false) {
-        return rerender();
+        return rerender([]);
       }
     }
 
