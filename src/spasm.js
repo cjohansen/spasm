@@ -44,7 +44,7 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
         if (results === res.length) {
           delete pageData.isPartial;
         }
-        Object.keys(data).forEach(k => pageData[k] = data[k]);
+        Object.keys(data || {}).forEach(k => pageData[k] = data[k]);
         return callback(pageData);
       }))).then(res => {
         events.emit('dataLoaded', pageData);
