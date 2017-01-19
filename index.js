@@ -30,7 +30,7 @@ export function monitorLinks(app, handleExternalLinks = identity) {
 
     if (page && (!host || hostport === window.location.host)) {
       e.preventDefault();
-      app.gotoURL(link.href);
+      link.dataset.replace ? app.replaceURL(link.href) : app.gotoURL(link.href);
     } else {
       handleExternalLinks(e, link);
     }
