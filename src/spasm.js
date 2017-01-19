@@ -249,6 +249,11 @@ export function createApp({render, state, finalizeData, logger, prefix}) {
       return loadURL(location.href);
     },
 
+    replaceURL(url, state = {}) {
+      history.replaceState({}, '', url.replace(new RegExp(`^(${prefix})?`), prefix));
+      return loadURL(url, state);
+    },
+
     gotoURL(url, state = {}) {
       return gotoURL(url, state, 'pushState');
     },

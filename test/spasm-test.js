@@ -20,7 +20,7 @@ describe('Spasm', () => {
       render: sinon.stub()
     };
     app.addPage('viewUser', '/users/:id', page);
-    global.history = {pushState: sinon.spy()};
+    global.history = {pushState: sinon.spy(), replaceState: sinon.spy()};
   });
 
   describe('loadURL', () => {
@@ -421,6 +421,22 @@ describe('Spasm', () => {
 
       assert.calledOnce(global.history.pushState);
       assert.equals(global.history.pushState.getCall(0).args[2], '/myapp/lists/42');
+      assert.match(page.getData.getCall(0).args[0].location, {
+        params: {id: 42}
+      });
+    });
+  });
+
+  describe.only('replaceURL', () => {
+    it('replaces the current history entry', () => {
+      const app = createApp({render, prefix: '/myapp'});
+      const page = {getData: sinon.stub().returns({})};
+      app.addPage('viewList', '/lists/:id', page);
+
+      app.replaceURL('/lists/42');
+
+      assert.calledOnce(global.history.replaceState);
+      assert.equals(global.history.replaceState.getCall(0).args[2], '/myapp/lists/42');
       assert.match(page.getData.getCall(0).args[0].location, {
         params: {id: 42}
       });
