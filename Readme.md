@@ -395,6 +395,10 @@ render. Optionally update client-side state as well.
 
 Like `loadURL`, but also push the `url` to the browser.
 
+### `app.replaceURL(url[, state])`
+
+Like `gotoURL`, but will replace the current URL.
+
 ### `app.triggerAction(action[, arg1, arg2])`
 
 Triggers an action. If trying to trigger an action that has no handlers, this
