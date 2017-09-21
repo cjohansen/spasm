@@ -427,7 +427,7 @@ describe('Spasm', () => {
     });
   });
 
-  describe.only('replaceURL', () => {
+  describe('replaceURL', () => {
     it('replaces the current history entry', () => {
       const app = createApp({render, prefix: '/myapp'});
       const page = {getData: sinon.stub().returns({})};
