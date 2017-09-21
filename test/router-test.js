@@ -279,6 +279,19 @@ describe('Router', () => {
         something: 'other'
       });
     });
+
+    it('parses zero-prefixed number as text', () => {
+      assert.equals(parseQueryString('id=012'), {
+        id: "012"
+      });
+    });
+
+    it('parses zero itself as a number', () => {
+      assert.equals(parseQueryString('id=0'), {
+        id: 0
+      });
+    });
+
   });
 
   describe('formatURL', () => {
