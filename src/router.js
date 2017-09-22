@@ -60,7 +60,7 @@ function val(v) {
 }
 
 function paramValue(v) {
-  if (/^-?\d+$/.test(v)) {
+  if (/^0$|^-?[1-9]\d*$/.test(v)) {
     return parseInt(v, 10);
   }
   if (/^-?\d+\.\d+$/.test(v)) {
