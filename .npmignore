@@ -4,3 +4,4 @@ src
 test
 .jshintrc
 yarn.lock
+.idea
